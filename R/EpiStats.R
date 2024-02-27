@@ -115,6 +115,7 @@ build_epistats <- function(geog.lvl = NULL,
                            time.unit = 7,
                            browser = FALSE) {
 
+
   # Fix global binding check errors
   duration.time <- anal.acts.time <- anal.acts.time.cp <- NULL
 
@@ -126,6 +127,17 @@ build_epistats <- function(geog.lvl = NULL,
   ## Data ##
   d <- ARTnet.wide
   l <- ARTnet.long
+
+  # Ensuring substance use is in the model
+
+  # Get methamphetamine use variable (recode `NaN`s as `0`s)
+  d$meth <- ifelse(is.nan(d$NIUSEG), 0, d$NIUSEG)
+
+  # Get `AMIS_ID` and `meth` for merging
+  meth_merge <- d %>%
+    dplyr::select(AMIS_ID, meth)
+
+  l <- l %>% dplyr::left_join(meth_merge, by = "AMIS_ID")
 
   out <- list()
 
@@ -332,14 +344,18 @@ build_epistats <- function(geog.lvl = NULL,
     if (is.null(geog.lvl)) {
       la <- select(l, ptype, duration.time, comb.age,
                    race.combo, RAI, IAI, hiv.concord.pos, prep,
-                   acts = anal.acts.time, cp.acts = anal.acts.time.cp) %>%
+                   acts = anal.acts.time, cp.acts = anal.acts.time.cp,
+                   # SELECT SUBSTANCE USE INDICATORS
+                   meth) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
     } else {
       la <- select(l, ptype, duration.time, comb.age, geogYN = geogYN,
                    race.combo, RAI, IAI, hiv.concord.pos, prep,
-                   acts = anal.acts.time, cp.acts = anal.acts.time.cp) %>%
+                   acts = anal.acts.time, cp.acts = anal.acts.time.cp,
+                   # SELECT SUBSTANCE USE INDICATORS
+                   meth) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
@@ -348,14 +364,18 @@ build_epistats <- function(geog.lvl = NULL,
     if (is.null(geog.lvl)) {
       la <- select(l, ptype, duration.time, comb.age,
                    RAI, IAI, hiv.concord.pos, prep,
-                   acts = anal.acts.time, cp.acts = anal.acts.time.cp) %>%
+                   acts = anal.acts.time, cp.acts = anal.acts.time.cp,
+                   # SELECT SUBSTANCE USE INDICATORS
+                   meth) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
     } else {
       la <- select(l, ptype, duration.time, comb.age, geogYN = geogYN,
                    RAI, IAI, hiv.concord.pos, prep,
-                   acts = anal.acts.time, cp.acts = anal.acts.time.cp) %>%
+                   acts = anal.acts.time, cp.acts = anal.acts.time.cp,
+                   # SELECT SUBSTANCE USE INDICATORS
+                   meth) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
@@ -400,24 +420,24 @@ build_epistats <- function(geog.lvl = NULL,
     if (is.null(geog.lvl)) {
       cond.mc.mod <- glm(any.cond ~ duration.time + I(duration.time^2) + as.factor(race.combo) +
                            as.factor(ptype) + duration.time * as.factor(ptype) + comb.age +
-                           I(comb.age^2) + hiv.concord.pos + prep,
+                           I(comb.age^2) + hiv.concord.pos + prep + meth,
                          family = binomial(), data = la)
     } else {
       cond.mc.mod <- glm(any.cond ~ duration.time + I(duration.time^2) + as.factor(race.combo) +
                            as.factor(ptype) + duration.time * as.factor(ptype) + comb.age +
-                           I(comb.age^2) + hiv.concord.pos + prep + geogYN,
+                           I(comb.age^2) + hiv.concord.pos + prep + geogYN + meth,
                          family = binomial(), data = la)
     }
   }  else {
     if (is.null(geog.lvl)) {
       cond.mc.mod <- glm(any.cond ~ duration.time + I(duration.time^2) +
                            as.factor(ptype) + duration.time * as.factor(ptype) + comb.age +
-                           I(comb.age^2) + hiv.concord.pos + prep,
+                           I(comb.age^2) + hiv.concord.pos + prep + meth,
                          family = binomial(), data = la)
     } else {
       cond.mc.mod <- glm(any.cond ~ duration.time + I(duration.time^2) +
                            as.factor(ptype) + duration.time * as.factor(ptype) + comb.age +
-                           I(comb.age ^ 2) + hiv.concord.pos + prep + geogYN,
+                           I(comb.age ^ 2) + hiv.concord.pos + prep + geogYN + meth,
                          family = binomial(), data = la)
     }
   }
@@ -427,13 +447,17 @@ build_epistats <- function(geog.lvl = NULL,
     if (is.null(geog.lvl)) {
       lb <- select(l, ptype, comb.age,
                    race.combo, hiv.concord.pos, prep,
-                   RAI, IAI, RECUAI, INSUAI) %>%
+                   RAI, IAI, RECUAI, INSUAI,
+                   # SUBSTANCE USE INDICATORS
+                   meth) %>%
         filter(ptype == 3) %>%
         filter(RAI == 1 | IAI == 1)
     } else {
       lb <- select(l, ptype, comb.age, geogYN = geogYN,
                    race.combo, hiv.concord.pos, prep,
-                   RAI, IAI, RECUAI, INSUAI) %>%
+                   RAI, IAI, RECUAI, INSUAI,
+                   # SUBSTANCE USE INDICATORS
+                   meth) %>%
         filter(ptype == 3) %>%
         filter(RAI == 1 | IAI == 1)
     }
@@ -441,13 +465,17 @@ build_epistats <- function(geog.lvl = NULL,
     if (is.null(geog.lvl)) {
       lb <- select(l, ptype, comb.age,
                    hiv.concord.pos, prep,
-                   RAI, IAI, RECUAI, INSUAI) %>%
+                   RAI, IAI, RECUAI, INSUAI,
+                   # SUBSTANCE USE INDICATORS
+                   meth) %>%
         filter(ptype == 3) %>%
         filter(RAI == 1 | IAI == 1)
     } else {
       lb <- select(l, ptype, comb.age, geogYN = geogYN,
                    hiv.concord.pos, prep,
-                   RAI, IAI, RECUAI, INSUAI) %>%
+                   RAI, IAI, RECUAI, INSUAI,
+                   # SUBSTANCE USE INDICATORS
+                   meth) %>%
         filter(ptype == 3) %>%
         filter(RAI == 1 | IAI == 1)
     }
@@ -469,25 +497,26 @@ build_epistats <- function(geog.lvl = NULL,
     if (is.null(geog.lvl)) {
       cond.oo.mod <- glm(prob.cond ~ as.factor(race.combo) +
                            comb.age + I(comb.age^2) +
-                           hiv.concord.pos + prep,
+                           hiv.concord.pos + prep + meth,
                          family = binomial(), data = lb)
     } else {
       cond.oo.mod <- glm(prob.cond ~ as.factor(race.combo) +
                            comb.age + I(comb.age^2) +
-                           hiv.concord.pos + prep + geogYN,
+                           hiv.concord.pos + prep + geogYN + meth,
                          family = binomial(), data = lb)
     }
   } else {
     if (is.null(geog.lvl)) {
       cond.oo.mod <- glm(prob.cond ~ comb.age + I(comb.age^2) +
-                           hiv.concord.pos + prep,
+                           hiv.concord.pos + prep + meth,
                          family = binomial(), data = lb)
     } else {
       cond.oo.mod <- glm(prob.cond ~ comb.age + I(comb.age^2) +
-                           hiv.concord.pos + prep + geogYN,
+                           hiv.concord.pos + prep + geogYN + meth,
                          family = binomial(), data = lb)
     }
   }
+
 
   # Init HIV Status ---------------------------------------------------------
   if (is.null(init.hiv.prev)) {
