@@ -13,7 +13,8 @@ build_epistats(
   age.sexual.cessation = NULL,
   init.hiv.prev = NULL,
   time.unit = 7,
-  browser = FALSE
+  browser = FALSE,
+  substance = NULL
 )
 }
 \arguments{
@@ -47,6 +48,8 @@ corresponding to a weekly time unit. Allowed inputs range from 1 for a daily tim
 30 for a monthly time unit.}
 
 \item{browser}{If \code{TRUE}, run \code{build_epistats} in interactive browser mode.}
+
+\item{substance}{A character vector indicating the substance use indicators that should be included in regression models. Acceptable values include \code{"marijuana"}, \code{"cocaine"}, \code{"poppers"}, \code{"ecstasy"}, \code{"painkillers"}, \code{"downers"}, \code{"meth"}, \code{"hallucinogens"}, \code{"ketamine"}, \code{"ghb"}, \code{"crack"}, \code{"heroin_ninj"}, and \code{"other_drug"}.}
 }
 \description{
 Builds statistical models governing act rates and probability of condom use among

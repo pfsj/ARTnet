@@ -27,7 +27,7 @@
 #'        corresponding to a weekly time unit. Allowed inputs range from 1 for a daily time unit to
 #'        30 for a monthly time unit.
 #' @param browser If `TRUE`, run `build_epistats` in interactive browser mode.
-#' @param substance A character vector indicating the substance use indicators that should be included in regression models.
+#' @param substance A character vector indicating the substance use indicators that should be included in regression models. Acceptable values include \code{"marijuana"}, \code{"cocaine"}, \code{"poppers"}, \code{"ecstasy"}, \code{"painkillers"}, \code{"downers"}, \code{"meth"}, \code{"hallucinogens"}, \code{"ketamine"}, \code{"ghb"}, \code{"crack"}, \code{"heroin_ninj"}, and \code{"other_drug"}.
 #'
 #' @details
 #' The `build_epistats` function provides a way to input of geographic, age, and racial parameters
@@ -106,20 +106,6 @@
 #'
 #' @export
 #'
-
-
-geog.lvl = "city"
-geog.cat = "Chicago"
-init.hiv.prev = c(0.33, 0.137, 0.084)
-race = TRUE
-time.unit = 7
-substance = "meth"
-age.limits = c(15, 65)
-age.breaks = c(25, 35, 45, 55)
-age.sexual.cessation = NULL
-browser = FALSE
-
-
 build_epistats <- function(geog.lvl = NULL,
                            geog.cat = NULL,
                            race = TRUE,
