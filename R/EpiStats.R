@@ -403,28 +403,75 @@ build_epistats <- function(geog.lvl = NULL,
   # Poisson Model
   if (race == TRUE) {
     if (is.null(geog.lvl)) {
-      acts.mod <- glm(floor(acts * 364 / time.unit) ~ duration.time + I(duration.time^2) +
-                        as.factor(race.combo) + as.factor(ptype) + duration.time *
-                        as.factor(ptype) + comb.age + I(comb.age^2) + hiv.concord.pos,
+
+      model_vars <- c("duration.time", "I(duration.time^2)", "as.factor(race.combo)",
+                      "as.factor(ptype)", "duration.time * as.factor(ptype)", "comb.age",
+                      "I(comb.age^2)", "hiv.concord.pos")
+
+      if (!is.null(substance)) {
+        model_vars <- c(model_vars, substance)
+      }
+
+      model_formula <- as.formula(paste("floor(acts * 364 / time.unit)",
+                                        paste(model_vars, collapse = " + "),
+                                        sep = " ~ "))
+
+      acts.mod <- glm(model_formula,
                       family = poisson(), data = la)
+
     } else {
-      acts.mod <- glm(floor(acts * 364 / time.unit) ~ duration.time + I(duration.time^2) +
-                        as.factor(race.combo) + as.factor(ptype) +
-                        duration.time * as.factor(ptype) + comb.age + I(comb.age^2) +
-                        hiv.concord.pos + geogYN,
+
+      model_vars <- c("duration.time", "I(duration.time^2)", "as.factor(race.combo)",
+                      "as.factor(ptype)", "duration.time * as.factor(ptype)", "comb.age",
+                      "I(comb.age^2)", "hiv.concord.pos", "geogYN")
+
+      if (!is.null(substance)) {
+        model_vars <- c(model_vars, substance)
+      }
+
+      model_formula <- as.formula(paste("floor(acts * 364 / time.unit)",
+                                        paste(model_vars, collapse = " + "),
+                                        sep = " ~ "))
+
+      acts.mod <- glm(model_formula,
                       family = poisson(), data = la)
+
     }
   }  else {
     if (is.null(geog.lvl)) {
-      acts.mod <- glm(floor(acts * 364 / time.unit) ~ duration.time + I(duration.time^2) +
-                        as.factor(ptype) + duration.time * as.factor(ptype) + comb.age +
-                        I(comb.age^2) + hiv.concord.pos,
+
+      model_vars <- c("duration.time", "I(duration.time^2)",
+                      "as.factor(ptype)", "duration.time * as.factor(ptype)", "comb.age",
+                      "I(comb.age^2)", "hiv.concord.pos")
+
+      if (!is.null(substance)) {
+        model_vars <- c(model_vars, substance)
+      }
+
+      model_formula <- as.formula(paste("floor(acts * 364 / time.unit)",
+                                        paste(model_vars, collapse = " + "),
+                                        sep = " ~ "))
+
+      acts.mod <- glm(model_formula,
                       family = poisson(), data = la)
+
     } else {
-      acts.mod <- glm(floor(acts * 364 / time.unit) ~ duration.time + I(duration.time^2) +
-                        as.factor(ptype) + duration.time * as.factor(ptype) + comb.age +
-                        I(comb.age^2) + hiv.concord.pos + geogYN,
+
+      model_vars <- c("duration.time", "I(duration.time^2)",
+                      "as.factor(ptype)", "duration.time * as.factor(ptype)", "comb.age",
+                      "I(comb.age^2)", "hiv.concord.pos", "geogYN")
+
+      if (!is.null(substance)) {
+        model_vars <- c(model_vars, substance)
+      }
+
+      model_formula <- as.formula(paste("floor(acts * 364 / time.unit)",
+                                        paste(model_vars, collapse = " + "),
+                                        sep = " ~ "))
+
+      acts.mod <- glm(model_formula,
                       family = poisson(), data = la)
+
     }
   }
 
