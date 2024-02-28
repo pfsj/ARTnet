@@ -27,6 +27,7 @@
 #'        corresponding to a weekly time unit. Allowed inputs range from 1 for a daily time unit to
 #'        30 for a monthly time unit.
 #' @param browser If `TRUE`, run `build_epistats` in interactive browser mode.
+#' @param substance A character vector indicating the substance use indicators that should be included in regression models.
 #'
 #' @details
 #' The `build_epistats` function provides a way to input of geographic, age, and racial parameters
@@ -105,6 +106,20 @@
 #'
 #' @export
 #'
+
+
+geog.lvl = "city"
+geog.cat = "Chicago"
+init.hiv.prev = c(0.33, 0.137, 0.084)
+race = TRUE
+time.unit = 7
+substance = "meth"
+age.limits = c(15, 65)
+age.breaks = c(25, 35, 45, 55)
+age.sexual.cessation = NULL
+browser = FALSE
+
+
 build_epistats <- function(geog.lvl = NULL,
                            geog.cat = NULL,
                            race = TRUE,
@@ -113,7 +128,8 @@ build_epistats <- function(geog.lvl = NULL,
                            age.sexual.cessation = NULL,
                            init.hiv.prev = NULL,
                            time.unit = 7,
-                           browser = FALSE) {
+                           browser = FALSE,
+                           substance = NULL) {
 
 
   # Fix global binding check errors
@@ -124,20 +140,36 @@ build_epistats <- function(geog.lvl = NULL,
   }
 
 
+
   ## Data ##
   d <- ARTnet.wide
   l <- ARTnet.long
 
   # Ensuring substance use is in the model
 
-  # Get methamphetamine use variable (recode `NaN`s as `0`s)
+  # Substance Use Variables (binard, recoding `NaN`s as `0`s)
+  d$marijuana <- ifelse(is.nan(d$NIUSEA), 0, d$NIUSEA)
+  d$cocaine <- ifelse(is.nan(d$NIUSEB), 0, d$NIUSEB)
+  d$poppers <- ifelse(is.nan(d$NIUSEC), 0, d$NIUSEC)
+  d$ecstasy <- ifelse(is.nan(d$NIUSED), 0, d$NIUSED)
+  d$painkillers <- ifelse(is.nan(d$NIUSEE), 0, d$NIUSEE)
+  d$downers <- ifelse(is.nan(d$NIUSEF), 0, d$NIUSEF)
   d$meth <- ifelse(is.nan(d$NIUSEG), 0, d$NIUSEG)
+  d$hallucinogens <- ifelse(is.nan(d$NIUSEH), 0, d$NIUSEH)
+  d$ketamine <- ifelse(is.nan(d$NIUSEI), 0, d$NIUSEI)
+  d$ghb <- ifelse(is.nan(d$NIUSEJ), 0, d$NIUSEJ)
+  d$crack <- ifelse(is.nan(d$NIUSEK), 0, d$NIUSEK)
+  d$heroin_ninj <- ifelse(is.nan(d$NIUSEL), 0, d$NIUSEL)
+  d$other_drug <- ifelse(is.nan(d$NIUSEN), 0, d$NIUSEN)
 
+  if (!is.null(substance)) {
   # Get `AMIS_ID` and `meth` for merging
-  meth_merge <- d %>%
-    dplyr::select(AMIS_ID, meth)
+  substance_merge <- d %>%
+    dplyr::select(AMIS_ID, dplyr::all_of(substance))
 
-  l <- l %>% dplyr::left_join(meth_merge, by = "AMIS_ID")
+  l <- l %>% dplyr::left_join(substance_merge, by = "AMIS_ID")
+
+  }
 
   out <- list()
 
@@ -346,7 +378,7 @@ build_epistats <- function(geog.lvl = NULL,
                    race.combo, RAI, IAI, hiv.concord.pos, prep,
                    acts = anal.acts.time, cp.acts = anal.acts.time.cp,
                    # SELECT SUBSTANCE USE INDICATORS
-                   meth) %>%
+                   all_of(substance)) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
@@ -355,7 +387,7 @@ build_epistats <- function(geog.lvl = NULL,
                    race.combo, RAI, IAI, hiv.concord.pos, prep,
                    acts = anal.acts.time, cp.acts = anal.acts.time.cp,
                    # SELECT SUBSTANCE USE INDICATORS
-                   meth) %>%
+                   all_of(substance)) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
@@ -366,7 +398,7 @@ build_epistats <- function(geog.lvl = NULL,
                    RAI, IAI, hiv.concord.pos, prep,
                    acts = anal.acts.time, cp.acts = anal.acts.time.cp,
                    # SELECT SUBSTANCE USE INDICATORS
-                   meth) %>%
+                   all_of(substance)) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
@@ -375,7 +407,7 @@ build_epistats <- function(geog.lvl = NULL,
                    RAI, IAI, hiv.concord.pos, prep,
                    acts = anal.acts.time, cp.acts = anal.acts.time.cp,
                    # SELECT SUBSTANCE USE INDICATORS
-                   meth) %>%
+                   all_of(substance)) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
@@ -418,27 +450,82 @@ build_epistats <- function(geog.lvl = NULL,
 
   if (race == TRUE) {
     if (is.null(geog.lvl)) {
-      cond.mc.mod <- glm(any.cond ~ duration.time + I(duration.time^2) + as.factor(race.combo) +
-                           as.factor(ptype) + duration.time * as.factor(ptype) + comb.age +
-                           I(comb.age^2) + hiv.concord.pos + prep + meth,
+
+      model_vars <- c("duration.time", "I(duration.time^2)", "as.factor(race.combo)",
+                      "as.factor(ptype)", "duration.time * as.factor(ptype)", "comb.age",
+                      "I(comb.age^2)", "hiv.concord.pos", "prep")
+
+      if (!is.null(substance)) {
+        model_vars <- c(model_vars, substance)
+      }
+
+      model_formula <- as.formula(paste("any.cond",
+                                        paste(model_vars, collapse = " + "),
+                                        sep = " ~ "))
+
+
+      cond.mc.mod <- glm(model_formula,
                          family = binomial(), data = la)
+
     } else {
-      cond.mc.mod <- glm(any.cond ~ duration.time + I(duration.time^2) + as.factor(race.combo) +
-                           as.factor(ptype) + duration.time * as.factor(ptype) + comb.age +
-                           I(comb.age^2) + hiv.concord.pos + prep + geogYN + meth,
+
+      model_vars <- c("duration.time", "I(duration.time^2)", "as.factor(race.combo)",
+                      "as.factor(ptype)", "duration.time * as.factor(ptype)", "comb.age",
+                      "I(comb.age^2)", "hiv.concord.pos", "prep", "geogYN")
+
+
+      if (!is.null(substance)) {
+        model_vars <- c(model_vars, substance)
+      }
+
+      model_formula <- as.formula(paste("any.cond",
+                                        paste(model_vars, collapse = " + "),
+                                        sep = " ~ "))
+
+
+      cond.mc.mod <- glm(model_formula,
                          family = binomial(), data = la)
     }
   }  else {
     if (is.null(geog.lvl)) {
-      cond.mc.mod <- glm(any.cond ~ duration.time + I(duration.time^2) +
-                           as.factor(ptype) + duration.time * as.factor(ptype) + comb.age +
-                           I(comb.age^2) + hiv.concord.pos + prep + meth,
+
+
+      model_vars <- c("duration.time", "I(duration.time^2)",
+                      "as.factor(ptype)", "duration.time * as.factor(ptype)", "comb.age",
+                      "I(comb.age^2)", "hiv.concord.pos", "prep")
+
+      if (!is.null(substance)) {
+        model_vars <- c(model_vars, substance)
+      }
+
+      model_formula <- as.formula(paste("any.cond",
+                                        paste(model_vars, collapse = " + "),
+                                        sep = " ~ "))
+
+
+      cond.mc.mod <- glm(model_formula,
                          family = binomial(), data = la)
+
+
     } else {
-      cond.mc.mod <- glm(any.cond ~ duration.time + I(duration.time^2) +
-                           as.factor(ptype) + duration.time * as.factor(ptype) + comb.age +
-                           I(comb.age ^ 2) + hiv.concord.pos + prep + geogYN + meth,
+
+      model_vars <- c("duration.time", "I(duration.time^2)",
+                      "as.factor(ptype)", "duration.time * as.factor(ptype)", "comb.age",
+                      "I(comb.age^2)", "hiv.concord.pos", "prep", "geogYN")
+
+
+      if (!is.null(substance)) {
+        model_vars <- c(model_vars, substance)
+      }
+
+      model_formula <- as.formula(paste("any.cond",
+                                        paste(model_vars, collapse = " + "),
+                                        sep = " ~ "))
+
+
+      cond.mc.mod <- glm(model_formula,
                          family = binomial(), data = la)
+
     }
   }
 
@@ -449,7 +536,7 @@ build_epistats <- function(geog.lvl = NULL,
                    race.combo, hiv.concord.pos, prep,
                    RAI, IAI, RECUAI, INSUAI,
                    # SUBSTANCE USE INDICATORS
-                   meth) %>%
+                   all_of(substance)) %>%
         filter(ptype == 3) %>%
         filter(RAI == 1 | IAI == 1)
     } else {
@@ -457,7 +544,7 @@ build_epistats <- function(geog.lvl = NULL,
                    race.combo, hiv.concord.pos, prep,
                    RAI, IAI, RECUAI, INSUAI,
                    # SUBSTANCE USE INDICATORS
-                   meth) %>%
+                   all_of(substance)) %>%
         filter(ptype == 3) %>%
         filter(RAI == 1 | IAI == 1)
     }
@@ -467,7 +554,7 @@ build_epistats <- function(geog.lvl = NULL,
                    hiv.concord.pos, prep,
                    RAI, IAI, RECUAI, INSUAI,
                    # SUBSTANCE USE INDICATORS
-                   meth) %>%
+                   all_of(substance)) %>%
         filter(ptype == 3) %>%
         filter(RAI == 1 | IAI == 1)
     } else {
@@ -475,7 +562,7 @@ build_epistats <- function(geog.lvl = NULL,
                    hiv.concord.pos, prep,
                    RAI, IAI, RECUAI, INSUAI,
                    # SUBSTANCE USE INDICATORS
-                   meth) %>%
+                   all_of(substance)) %>%
         filter(ptype == 3) %>%
         filter(RAI == 1 | IAI == 1)
     }
@@ -495,25 +582,78 @@ build_epistats <- function(geog.lvl = NULL,
 
   if (race == TRUE) {
     if (is.null(geog.lvl)) {
-      cond.oo.mod <- glm(prob.cond ~ as.factor(race.combo) +
-                           comb.age + I(comb.age^2) +
-                           hiv.concord.pos + prep + meth,
+
+
+      model_vars <- c("as.factor(race.combo)",
+                        "comb.age", "I(comb.age^2)",
+                        "hiv.concord.pos", "prep")
+
+      if (!is.null(substance)) {
+        model_vars <- c(model_vars, substance)
+      }
+
+      model_formula <- as.formula(paste("prob.cond",
+                                        paste(model_vars, collapse = " + "),
+                                        sep = " ~ "))
+
+
+      cond.oo.mod <- glm(model_formula,
                          family = binomial(), data = lb)
     } else {
-      cond.oo.mod <- glm(prob.cond ~ as.factor(race.combo) +
-                           comb.age + I(comb.age^2) +
-                           hiv.concord.pos + prep + geogYN + meth,
+
+      model_vars <- c("as.factor(race.combo)",
+                      "comb.age", "I(comb.age^2)",
+                      "hiv.concord.pos", "prep", "geogYN")
+
+      if (!is.null(substance)) {
+        model_vars <- c(model_vars, substance)
+      }
+
+      model_formula <- as.formula(paste("prob.cond",
+                                        paste(model_vars, collapse = " + "),
+                                        sep = " ~ "))
+
+
+      cond.oo.mod <- glm(model_formula,
                          family = binomial(), data = lb)
+
     }
   } else {
     if (is.null(geog.lvl)) {
-      cond.oo.mod <- glm(prob.cond ~ comb.age + I(comb.age^2) +
-                           hiv.concord.pos + prep + meth,
+
+      model_vars <- c("comb.age", "I(comb.age^2)",
+                      "hiv.concord.pos", "prep")
+
+      if (!is.null(substance)) {
+        model_vars <- c(model_vars, substance)
+      }
+
+      model_formula <- as.formula(paste("prob.cond",
+                                        paste(model_vars, collapse = " + "),
+                                        sep = " ~ "))
+
+
+      cond.oo.mod <- glm(model_formula,
                          family = binomial(), data = lb)
+
+
     } else {
-      cond.oo.mod <- glm(prob.cond ~ comb.age + I(comb.age^2) +
-                           hiv.concord.pos + prep + geogYN + meth,
+
+      model_vars <- c("comb.age", "I(comb.age^2)",
+                      "hiv.concord.pos", "prep", "geogYN")
+
+      if (!is.null(substance)) {
+        model_vars <- c(model_vars, substance)
+      }
+
+      model_formula <- as.formula(paste("prob.cond",
+                                        paste(model_vars, collapse = " + "),
+                                        sep = " ~ "))
+
+
+      cond.oo.mod <- glm(model_formula,
                          family = binomial(), data = lb)
+
     }
   }
 
