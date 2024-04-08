@@ -750,6 +750,7 @@ build_epistats <- function(geog.lvl = NULL,
   out$sex.cess.mod <- sex.cess.mod
   out$init.hiv.prev <- init.hiv.prev
   out$time.unit <- time.unit
+  out$meth.d <- d$meth
   return(out)
 }
 

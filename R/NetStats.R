@@ -99,6 +99,8 @@ build_netstats <- function(epistats, netparams,
   age.limits <- epistats$age.limits
   age.sexual.cessation <- epistats$age.sexual.cessation
 
+  meth <- epistats$meth.d
+
   time.unit <- epistats$time.unit
 
 
@@ -130,6 +132,10 @@ build_netstats <- function(epistats, netparams,
   num.B <- out$demog$num.B <- round(num * props$Black)
   num.H <- out$demog$num.H <- round(num * props$Hispanic)
   num.W <- out$demog$num.W <- num - num.B - num.H
+
+  # Population size by meth 
+  meth.prop <- unname(prop.table(table(meth)))
+  num.meth <- out$demog$num.meth <- round(num * meth.prop[2])
 
   ## Age-sex-specific mortality rates (B, H, W)
   #  in 1-year age decrements starting with age 1
@@ -264,6 +270,10 @@ build_netstats <- function(epistats, netparams,
   attr_race <- apportion_lr(num, 1:3, c(num.B / num, num.H / num, num.W / num), shuffled = TRUE)
   out$attr$race <- attr_race
 
+  # meth attribute - currently set at pop rate of 15%
+  attr_meth <- apportion_lr(num, 0:1, c((num - num.meth)/num, num.meth / num), shuffled = TRUE)
+  out$attr$meth <- attr_meth
+
   # deg.casl attribute
   attr_deg.casl <- apportion_lr(num, 0:3, netparams$main$deg.casl.dist, shuffled = TRUE)
   if (sex.cess.mod == TRUE) {
@@ -361,6 +371,10 @@ build_netstats <- function(epistats, netparams,
     out$main$edges <- (netparams$main$md.main * num) / 2
   }
 
+  # nodefactor("meth") ---
+  nodefactor_meth <- table(out$attr$meth) * netparams$main$nf.meth
+  out$main$nodefactor_meth <- unname(nodefactor_meth)
+
   # nodefactor("age.grp") ---
   nodefactor_age.grp <- table(out$attr$age.grp) * netparams$main$nf.age.grp
   if (sex.cess.mod == TRUE) {
@@ -427,6 +441,10 @@ build_netstats <- function(epistats, netparams,
     out$casl$edges <- (netparams$casl$md.casl * num) / 2
   }
 
+  # nodefactor("meth") ---
+  nodefactor_meth <- table(out$attr$meth) * netparams$casl$nf.meth
+  out$casl$nodefactor_meth <- unname(nodefactor_meth)
+
   # nodefactor("age.grp") ---
   nodefactor_age.grp <- table(out$attr$age.grp) * netparams$casl$nf.age.grp
   if (sex.cess.mod == TRUE) {
@@ -491,6 +509,10 @@ build_netstats <- function(epistats, netparams,
   } else {
     out$inst$edges <- (netparams$inst$md.inst * num) / 2
   }
+
+  # nodefactor("meth") ---
+  nodefactor_meth <- table(out$attr$meth) * netparams$inst$nf.meth
+  out$inst$nodefactor_meth <- unname(nodefactor_meth)
 
   # nodefactor("age.grp") ---
   nodefactor_age.grp <- table(out$attr$age.grp) * netparams$inst$nf.age.grp

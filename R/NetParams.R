@@ -96,6 +96,9 @@ build_netparams <- function(epistats,
     l$geogYN <- epistats$geogYN.l
   }
 
+  # Recode substances
+  d$meth <- ifelse(is.nan(d$NIUSEG), 0, d$NIUSEG)
+
   ## Degree calculations ##
 
   l$ONGOING <- as.numeric(l$ONGOING)
@@ -336,7 +339,6 @@ build_netparams <- function(epistats,
       out$main$nm.race <- as.numeric(pred)
     }
 
-
     ## nodematch("race", diff = FALSE) ----
 
     if (is.null(geog.lvl)) {
@@ -373,7 +375,26 @@ build_netparams <- function(epistats,
       out$main$nf.race <- as.numeric(pred)
     }
   }
+  ### @@@ Need to generalize to substances in ARTnet @@@ ###
+  # Could add if (meth == TRUE) logic
+  # nodefactr("meth") 
+  if (is.null(geog.lvl)) {
+      mod <- glm(deg.main ~ as.factor(meth),
+                 data = d, family = poisson())
 
+      dat <- data.frame(meth =  0:1)
+      pred <- predict(mod, newdata = dat, type = "response")
+
+      out$main$nf.meth <- as.numeric(pred)
+  } else {
+      mod <- glm(deg.main ~ geogYN + meth,
+                 data = d, family = poisson())
+
+      dat <- data.frame(geogYN = 1, meth = 0:1)
+      pred <- predict(mod, newdata = dat, type = "response")
+
+      out$main$nf.meth <- as.numeric(pred)
+  }
   ## nodefactor("deg.casl") ----
 
   if (is.null(geog.lvl)) {
@@ -700,6 +721,27 @@ build_netparams <- function(epistats,
 
       out$casl$nf.race <- as.numeric(pred)
     }
+  }
+
+  ### @@@ Need to generalize to substances in ARTnet @@@ ###
+  # Could add if (meth == TRUE) logic
+  # nodefactr("meth") 
+  if (is.null(geog.lvl)) {
+      mod <- glm(deg.casl ~ as.factor(meth),
+                 data = d, family = poisson())
+
+      dat <- data.frame(meth =  0:1)
+      pred <- predict(mod, newdata = dat, type = "response")
+
+      out$main$nf.meth <- as.numeric(pred)
+  } else {
+      mod <- glm(deg.casl ~ geogYN + meth,
+                 data = d, family = poisson())
+
+      dat <- data.frame(geogYN = 1, meth = 0:1)
+      pred <- predict(mod, newdata = dat, type = "response")
+
+      out$casl$nf.meth <- as.numeric(pred)
   }
 
   ## nodefactor("deg.main") ----
@@ -1029,6 +1071,27 @@ build_netparams <- function(epistats,
 
       out$inst$nf.race <- as.numeric(pred)
     }
+  }
+
+  ### @@@ Need to generalize to substances in ARTnet @@@ ###
+  # Could add if (meth == TRUE) logic
+  # nodefactr("meth") 
+  if (is.null(geog.lvl)) {
+      mod <- glm(count.oo.part ~ as.factor(meth),
+                 data = d, family = poisson())
+
+      dat <- data.frame(meth =  0:1)
+      pred <- predict(mod, newdata = dat, type = "response") / (364 / time.unit)
+
+      out$main$nf.meth <- as.numeric(pred)
+  } else {
+      mod <- glm(count.oo.part ~ geogYN + meth,
+                 data = d, family = poisson())
+
+      dat <- data.frame(geogYN = 1, meth = 0:1)
+      pred <- predict(mod, newdata = dat, type = "response") / (364 / time.unit)
+
+      out$inst$nf.meth <- as.numeric(pred)
   }
 
   ## nodefactor("risk.grp") ----
