@@ -375,6 +375,10 @@ build_netstats <- function(epistats, netparams,
   nodefactor_meth <- table(out$attr$meth) * netparams$main$nf.meth
   out$main$nodefactor_meth <- unname(nodefactor_meth)
 
+  # nodematch("meth") ---
+  nodematch_meth <- out$main$edges * netparams$main$nm.meth
+  out$main$nodematch_meth <- unname(nodematch_meth)
+
   # nodefactor("age.grp") ---
   nodefactor_age.grp <- table(out$attr$age.grp) * netparams$main$nf.age.grp
   if (sex.cess.mod == TRUE) {
@@ -445,6 +449,10 @@ build_netstats <- function(epistats, netparams,
   nodefactor_meth <- table(out$attr$meth) * netparams$casl$nf.meth
   out$casl$nodefactor_meth <- unname(nodefactor_meth)
 
+  # nodematch("meth") ---
+  nodematch_meth <- out$casl$edges * netparams$casl$nm.meth
+  out$casl$nodematch_meth <- unname(nodematch_meth)
+
   # nodefactor("age.grp") ---
   nodefactor_age.grp <- table(out$attr$age.grp) * netparams$casl$nf.age.grp
   if (sex.cess.mod == TRUE) {
@@ -513,6 +521,10 @@ build_netstats <- function(epistats, netparams,
   # nodefactor("meth") ---
   nodefactor_meth <- table(out$attr$meth) * netparams$inst$nf.meth
   out$inst$nodefactor_meth <- unname(nodefactor_meth)
+
+  # nodematch("meth") ---
+  nodematch_meth <- out$inst$edges * netparams$inst$nm.meth
+  out$inst$nodematch_meth <- unname(nodematch_meth)
 
   # nodefactor("age.grp") ---
   nodefactor_age.grp <- table(out$attr$age.grp) * netparams$inst$nf.age.grp

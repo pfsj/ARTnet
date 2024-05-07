@@ -96,8 +96,10 @@ build_netparams <- function(epistats,
     l$geogYN <- epistats$geogYN.l
   }
 
-  # Recode substances
+  ## Recode substances ##
   d$meth <- ifelse(is.nan(d$NIUSEG), 0, d$NIUSEG)
+  ## Assign meth to long dataset ##
+  l <- l %>% left_join(d[,c("AMIS_ID","meth")], by = "AMIS_ID")
 
   ## Degree calculations ##
 
@@ -375,9 +377,9 @@ build_netparams <- function(epistats,
       out$main$nf.race <- as.numeric(pred)
     }
   }
-  ### @@@ Need to generalize to substances in ARTnet @@@ ###
-  # Could add if (meth == TRUE) logic
-  # nodefactr("meth") 
+
+  # nodefactor("meth") 
+
   if (is.null(geog.lvl)) {
       mod <- glm(deg.main ~ as.factor(meth),
                  data = d, family = poisson())
@@ -395,6 +397,34 @@ build_netparams <- function(epistats,
 
       out$main$nf.meth <- as.numeric(pred)
   }
+
+  # nodematch("meth", diff = FALSE)
+  # Traditional way if we had dyadic meth data
+  # if (is.null(geog.lvl)) {
+  #   mod <- glm(same.meth ~ 1, 
+  #             data = lmain, family = binomial())
+    
+  #   pred <- exp(coef(mod)[[1]]) / (1 + exp(coef(mod)[[1]]))
+
+  #   out$inst$nm.meth <- as.numeric(pred)
+  # } else {
+  #   mod <- glm(same.meth ~ geogYN,
+  #              data = lmain, family = binomial())
+
+  #   dat <- data.frame(geogYN = 1)
+  #   pred <- predict(mod, newdata = dat, type = "response")
+
+  #   out$inst$nm.meth <- as.numeric(pred)
+  # }
+
+  # Simply assigning probabilities
+  # Homophily estimate pulled from supplement of Janulis et al. 2024 (RADAR DATA)
+  # 20% meth user partners use meth, 90% of on-users partners don't use meth
+  lmain$same.meth <- NA
+  lmain$same.meth[lmain$meth == 1] <- rbinom(length(which(lmain$meth == 1)),1, 0.2)
+  lmain$same.meth[lmain$meth == 0] <- rbinom(length(which(lmain$meth == 0)),1, 0.9)
+  out$main$nm.meth <- as.numeric(table(lmain$same.meth)/nrow(lmain))[2]
+
   ## nodefactor("deg.casl") ----
 
   if (is.null(geog.lvl)) {
@@ -548,6 +578,13 @@ build_netparams <- function(epistats,
   out$casl <- list()
   lcasl <- l[l$ptype == 2, ]
 
+  # Assign homophily data for estimate for Casual partners
+  # Homophily estimate pulled from from Janulis et al. 2024 (RADAR DATA)
+  # Meth users 20% of partners use meth, Non-users 90% partners don't use meth
+  lcasl$same.meth <- NA
+  lcasl$same.meth[lcasl$meth == 1] <- rbinom(length(which(lcasl$meth == 1)),1, 0.2)
+  lcasl$same.meth[lcasl$meth == 0] <- rbinom(length(which(lcasl$meth == 0)),1, 0.9)
+  out$casl$nm.meth <- as.numeric(table(lcasl$same.meth)/nrow(lcasl))[2]
 
   ## edges ----
 
@@ -723,9 +760,8 @@ build_netparams <- function(epistats,
     }
   }
 
-  ### @@@ Need to generalize to substances in ARTnet @@@ ###
-  # Could add if (meth == TRUE) logic
-  # nodefactr("meth") 
+  # nodefactor("meth")
+
   if (is.null(geog.lvl)) {
       mod <- glm(deg.casl ~ as.factor(meth),
                  data = d, family = poisson())
@@ -733,7 +769,7 @@ build_netparams <- function(epistats,
       dat <- data.frame(meth =  0:1)
       pred <- predict(mod, newdata = dat, type = "response")
 
-      out$main$nf.meth <- as.numeric(pred)
+      out$casl$nf.meth <- as.numeric(pred)
   } else {
       mod <- glm(deg.casl ~ geogYN + meth,
                  data = d, family = poisson())
@@ -743,6 +779,15 @@ build_netparams <- function(epistats,
 
       out$casl$nf.meth <- as.numeric(pred)
   }
+
+  # nodematch("meth", diff = FALSE)
+  # Simply assigning probabilities
+  # Homophily estimate pulled from supplement of Janulis et al. 2024 (RADAR DATA)
+  # 20% meth user partners use meth, 90% of on-users partners don't use meth
+  lcasl$same.meth <- NA
+  lcasl$same.meth[lcasl$meth == 1] <- rbinom(length(which(lcasl$meth == 1)),1, 0.2)
+  lcasl$same.meth[lcasl$meth == 0] <- rbinom(length(which(lcasl$meth == 0)),1, 0.9)
+  out$casl$nm.meth <- as.numeric(table(lcasl$same.meth)/nrow(lcasl))[2]
 
   ## nodefactor("deg.main") ----
 
@@ -890,6 +935,13 @@ build_netparams <- function(epistats,
 
   out$inst <- list()
   linst <- l[l$ptype == 3, ]
+
+  # Assign homophily data for estimate for one-off partners
+  # Homophily estimate pulled from from Janulis et al. 2024 (RADAR DATA)
+  # Meth users 20% of partners use meth, Non-users 90% partners don't use meth
+  linst$same.meth <- NA
+  linst$same.meth[linst$meth == 1] <- rbinom(length(which(linst$meth == 1)),1, 0.2)
+  linst$same.meth[linst$meth == 0] <- rbinom(length(which(linst$meth == 0)),1, 0.9)
 
   ## edges ----
 
@@ -1073,9 +1125,8 @@ build_netparams <- function(epistats,
     }
   }
 
-  ### @@@ Need to generalize to substances in ARTnet @@@ ###
-  # Could add if (meth == TRUE) logic
-  # nodefactr("meth") 
+  # nodefactor("meth") 
+
   if (is.null(geog.lvl)) {
       mod <- glm(count.oo.part ~ as.factor(meth),
                  data = d, family = poisson())
@@ -1083,7 +1134,7 @@ build_netparams <- function(epistats,
       dat <- data.frame(meth =  0:1)
       pred <- predict(mod, newdata = dat, type = "response") / (364 / time.unit)
 
-      out$main$nf.meth <- as.numeric(pred)
+      out$inst$nf.meth <- as.numeric(pred)
   } else {
       mod <- glm(count.oo.part ~ geogYN + meth,
                  data = d, family = poisson())
@@ -1093,6 +1144,15 @@ build_netparams <- function(epistats,
 
       out$inst$nf.meth <- as.numeric(pred)
   }
+
+  # nodematch("meth", diff = FALSE)
+  # Simply assigning probabilities
+  # Homophily estimate pulled from supplement of Janulis et al. 2024 (RADAR DATA)
+  # 20% meth user partners use meth, 90% of on-users partners don't use meth
+  linst$same.meth <- NA
+  linst$same.meth[linst$meth == 1] <- rbinom(length(which(linst$meth == 1)),1, 0.2)
+  linst$same.meth[linst$meth == 0] <- rbinom(length(which(linst$meth == 0)),1, 0.9)
+  out$inst$nm.meth <- as.numeric(table(linst$same.meth)/nrow(linst))[2]
 
   ## nodefactor("risk.grp") ----
 
