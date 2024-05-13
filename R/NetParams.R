@@ -423,7 +423,10 @@ build_netparams <- function(epistats,
   lmain$same.meth <- NA
   lmain$same.meth[lmain$meth == 1] <- rbinom(length(which(lmain$meth == 1)),1, 0.2)
   lmain$same.meth[lmain$meth == 0] <- rbinom(length(which(lmain$meth == 0)),1, 0.9)
-  out$main$nm.meth <- as.numeric(table(lmain$same.meth)/nrow(lmain))[2]
+
+  out$main$nm.meth_diffF <- as.numeric(table(lmain$same.meth)/nrow(lmain))[2]
+  out$main$nm.meth <- c(mean(lmain$same.meth[lmain$meth == 0]),
+                      mean(lmain$same.meth[lmain$meth == 1]))
 
   ## nodefactor("deg.casl") ----
 
@@ -578,13 +581,6 @@ build_netparams <- function(epistats,
   out$casl <- list()
   lcasl <- l[l$ptype == 2, ]
 
-  # Assign homophily data for estimate for Casual partners
-  # Homophily estimate pulled from from Janulis et al. 2024 (RADAR DATA)
-  # Meth users 20% of partners use meth, Non-users 90% partners don't use meth
-  lcasl$same.meth <- NA
-  lcasl$same.meth[lcasl$meth == 1] <- rbinom(length(which(lcasl$meth == 1)),1, 0.2)
-  lcasl$same.meth[lcasl$meth == 0] <- rbinom(length(which(lcasl$meth == 0)),1, 0.9)
-  out$casl$nm.meth <- as.numeric(table(lcasl$same.meth)/nrow(lcasl))[2]
 
   ## edges ----
 
@@ -787,7 +783,11 @@ build_netparams <- function(epistats,
   lcasl$same.meth <- NA
   lcasl$same.meth[lcasl$meth == 1] <- rbinom(length(which(lcasl$meth == 1)),1, 0.2)
   lcasl$same.meth[lcasl$meth == 0] <- rbinom(length(which(lcasl$meth == 0)),1, 0.9)
-  out$casl$nm.meth <- as.numeric(table(lcasl$same.meth)/nrow(lcasl))[2]
+
+  out$casl$nm.meth_diffF <- as.numeric(table(lcasl$same.meth)/nrow(lcasl))[2]
+
+  out$casl$nm.meth <- c(mean(lcasl$same.meth[lcasl$meth == 0]),
+                      mean(lcasl$same.meth[lcasl$meth == 1]))
 
   ## nodefactor("deg.main") ----
 
@@ -1152,7 +1152,12 @@ build_netparams <- function(epistats,
   linst$same.meth <- NA
   linst$same.meth[linst$meth == 1] <- rbinom(length(which(linst$meth == 1)),1, 0.2)
   linst$same.meth[linst$meth == 0] <- rbinom(length(which(linst$meth == 0)),1, 0.9)
-  out$inst$nm.meth <- as.numeric(table(linst$same.meth)/nrow(linst))[2]
+
+  out$inst$nm.meth_diffF <- as.numeric(table(linst$same.meth)/nrow(linst))[2]
+
+  out$inst$nm.meth <- c(mean(linst$same.meth[linst$meth == 0]),
+                      mean(linst$same.meth[linst$meth == 1]))
+  
 
   ## nodefactor("risk.grp") ----
 
