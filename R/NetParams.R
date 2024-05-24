@@ -203,7 +203,13 @@ build_netparams <- function(epistats,
 
   out <- list()
 
-
+  ## Setup drug homophily here ## 
+  # Homophily estimate pulled from supplement of Janulis et al. 2024 (RADAR DATA)
+  # 20% meth user partners use meth, 90% of on-users partners don't use meth
+  # Assign appropriate values here: # This should be stored eslewhere and read in.
+  meth_use_percent <- 0.20
+  no_meth_use_percent <- 0.90
+  
   # 1. Main Model -----------------------------------------------------------
 
   out$main <- list()
@@ -417,12 +423,10 @@ build_netparams <- function(epistats,
   #   out$inst$nm.meth <- as.numeric(pred)
   # }
 
-  # Simply assigning probabilities
-  # Homophily estimate pulled from supplement of Janulis et al. 2024 (RADAR DATA)
-  # 20% meth user partners use meth, 90% of on-users partners don't use meth
+  # Easier method, simply assigning probabilities
   lmain$same.meth <- NA
-  lmain$same.meth[lmain$meth == 1] <- rbinom(length(which(lmain$meth == 1)),1, 0.2)
-  lmain$same.meth[lmain$meth == 0] <- rbinom(length(which(lmain$meth == 0)),1, 0.9)
+  lmain$same.meth[lmain$meth == 1] <- rbinom(length(which(lmain$meth == 1)),1, meth_use_percent)
+  lmain$same.meth[lmain$meth == 0] <- rbinom(length(which(lmain$meth == 0)),1, no_meth_use_percent)
 
   out$main$nm.meth_diffF <- as.numeric(table(lmain$same.meth)/nrow(lmain))[2]
   out$main$nm.meth <- c(mean(lmain$same.meth[lmain$meth == 0]),
@@ -777,12 +781,9 @@ build_netparams <- function(epistats,
   }
 
   # nodematch("meth", diff = FALSE)
-  # Simply assigning probabilities
-  # Homophily estimate pulled from supplement of Janulis et al. 2024 (RADAR DATA)
-  # 20% meth user partners use meth, 90% of on-users partners don't use meth
   lcasl$same.meth <- NA
-  lcasl$same.meth[lcasl$meth == 1] <- rbinom(length(which(lcasl$meth == 1)),1, 0.2)
-  lcasl$same.meth[lcasl$meth == 0] <- rbinom(length(which(lcasl$meth == 0)),1, 0.9)
+  lcasl$same.meth[lcasl$meth == 1] <- rbinom(length(which(lcasl$meth == 1)),1, meth_use_percent)
+  lcasl$same.meth[lcasl$meth == 0] <- rbinom(length(which(lcasl$meth == 0)),1, no_meth_use_percent)
 
   out$casl$nm.meth_diffF <- as.numeric(table(lcasl$same.meth)/nrow(lcasl))[2]
 
@@ -940,8 +941,8 @@ build_netparams <- function(epistats,
   # Homophily estimate pulled from from Janulis et al. 2024 (RADAR DATA)
   # Meth users 20% of partners use meth, Non-users 90% partners don't use meth
   linst$same.meth <- NA
-  linst$same.meth[linst$meth == 1] <- rbinom(length(which(linst$meth == 1)),1, 0.2)
-  linst$same.meth[linst$meth == 0] <- rbinom(length(which(linst$meth == 0)),1, 0.9)
+  linst$same.meth[linst$meth == 1] <- rbinom(length(which(linst$meth == 1)),1, meth_use_percent)
+  linst$same.meth[linst$meth == 0] <- rbinom(length(which(linst$meth == 0)),1, no_meth_use_percent)
 
   ## edges ----
 
@@ -1147,11 +1148,9 @@ build_netparams <- function(epistats,
 
   # nodematch("meth", diff = FALSE)
   # Simply assigning probabilities
-  # Homophily estimate pulled from supplement of Janulis et al. 2024 (RADAR DATA)
-  # 20% meth user partners use meth, 90% of on-users partners don't use meth
   linst$same.meth <- NA
-  linst$same.meth[linst$meth == 1] <- rbinom(length(which(linst$meth == 1)),1, 0.2)
-  linst$same.meth[linst$meth == 0] <- rbinom(length(which(linst$meth == 0)),1, 0.9)
+  linst$same.meth[linst$meth == 1] <- rbinom(length(which(linst$meth == 1)),1, meth_use_percent)
+  linst$same.meth[linst$meth == 0] <- rbinom(length(which(linst$meth == 0)),1, no_meth_use_percent)
 
   out$inst$nm.meth_diffF <- as.numeric(table(linst$same.meth)/nrow(linst))[2]
 
