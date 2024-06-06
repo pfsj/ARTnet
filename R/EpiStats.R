@@ -750,7 +750,11 @@ build_epistats <- function(geog.lvl = NULL,
   out$sex.cess.mod <- sex.cess.mod
   out$init.hiv.prev <- init.hiv.prev
   out$time.unit <- time.unit
-  out$meth.d <- d$meth
+
+  # Meth at rate of ARTnet
+  #out$meth.d <- d$meth
+  # Meth at 20%
+  out$meth.d <- rbinom(length(d$meth),1,0.20)
   return(out)
 }
 
