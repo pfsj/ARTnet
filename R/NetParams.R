@@ -938,8 +938,6 @@ build_netparams <- function(epistats,
   linst <- l[l$ptype == 3, ]
 
   # Assign homophily data for estimate for one-off partners
-  # Homophily estimate pulled from from Janulis et al. 2024 (RADAR DATA)
-  # Meth users 20% of partners use meth, Non-users 90% partners don't use meth
   linst$same.meth <- NA
   linst$same.meth[linst$meth == 1] <- rbinom(length(which(linst$meth == 1)),1, meth_use_percent)
   linst$same.meth[linst$meth == 0] <- rbinom(length(which(linst$meth == 0)),1, no_meth_use_percent)
