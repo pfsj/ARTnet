@@ -390,15 +390,15 @@ build_netparams <- function(epistats,
       mod <- glm(deg.main ~ as.factor(meth),
                  data = d, family = poisson())
 
-      dat <- data.frame(meth =  0:1)
+      dat <- data.frame(meth =  1:2)
       pred <- predict(mod, newdata = dat, type = "response")
 
       out$main$nf.meth <- as.numeric(pred)
   } else {
-      mod <- glm(deg.main ~ geogYN + meth,
+      mod <- glm(deg.main ~ geogYN + as.factor(meth),
                  data = d, family = poisson())
 
-      dat <- data.frame(geogYN = 1, meth = 0:1)
+      dat <- data.frame(geogYN = 1, meth = 1:2)
       pred <- predict(mod, newdata = dat, type = "response")
 
       out$main$nf.meth <- as.numeric(pred)
@@ -766,15 +766,15 @@ build_netparams <- function(epistats,
       mod <- glm(deg.casl ~ as.factor(meth),
                  data = d, family = poisson())
 
-      dat <- data.frame(meth =  0:1)
+      dat <- data.frame(meth =  1:2)
       pred <- predict(mod, newdata = dat, type = "response")
 
       out$casl$nf.meth <- as.numeric(pred)
   } else {
-      mod <- glm(deg.casl ~ geogYN + meth,
+      mod <- glm(deg.casl ~ geogYN + as.factor(meth),
                  data = d, family = poisson())
 
-      dat <- data.frame(geogYN = 1, meth = 0:1)
+      dat <- data.frame(geogYN = 1, meth = 1:2)
       pred <- predict(mod, newdata = dat, type = "response")
 
       out$casl$nf.meth <- as.numeric(pred)
@@ -1130,7 +1130,7 @@ build_netparams <- function(epistats,
       mod <- glm(count.oo.part ~ as.factor(meth),
                  data = d, family = poisson())
 
-      dat <- data.frame(meth =  0:1)
+      dat <- data.frame(meth =  1:2)
       pred <- predict(mod, newdata = dat, type = "response") / (364 / time.unit)
 
       out$inst$nf.meth <- as.numeric(pred)
@@ -1138,7 +1138,7 @@ build_netparams <- function(epistats,
       mod <- glm(count.oo.part ~ geogYN + meth,
                  data = d, family = poisson())
 
-      dat <- data.frame(geogYN = 1, meth = 0:1)
+      dat <- data.frame(geogYN = 1, meth = 1:2)
       pred <- predict(mod, newdata = dat, type = "response") / (364 / time.unit)
 
       out$inst$nf.meth <- as.numeric(pred)
