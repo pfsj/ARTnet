@@ -289,14 +289,15 @@ build_netstats <- function(epistats, netparams,
   # meth attribute 
   if (length(attr_age.grp) == 5 & exists("meth.prop.byage")){
     # Assignment by age: only works with 5 age groups
-    for (r in 1:5){
-      out$attr$meth[out$attr$age.grp==r] <- rbinom(length(which(out$attr$age.grp==r)),1,meth.prop.byage[r])
+      for (r in 1:5){
+        out$attr$meth[out$attr$age.grp==r] <- rbinom(length(which(out$attr$age.grp==r)),1,meth.prop.byage[r])
+      } 
     } else {
-        # Simple random assignment if we don't know meth prevalence by age
-        attr_meth <- apportion_lr(num, 0:1, c((num - num.meth)/num, num.meth / num), shuffled = TRUE)
-        out$attr$meth <- attr_meth
+          # Simple random assignment if we don't know meth prevalence by age
+          attr_meth <- apportion_lr(num, 0:1, c((num - num.meth)/num, num.meth / num), shuffled = TRUE)
+          out$attr$meth <- attr_meth
     }
-  }
+
 
   # deg.casl attribute
   attr_deg.casl <- apportion_lr(num, 0:3, netparams$main$deg.casl.dist, shuffled = TRUE)
