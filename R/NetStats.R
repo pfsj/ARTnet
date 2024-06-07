@@ -82,7 +82,8 @@ build_netstats <- function(epistats, netparams,
                            edges.avg = FALSE,
                            race.prop = NULL,
                            young.prop = NULL,
-                           browser = FALSE) {
+                           browser = FALSE,
+                           meth.prop.byage = FALSE) {
 
   if (browser == TRUE) {
     browser()
@@ -140,6 +141,9 @@ build_netstats <- function(epistats, netparams,
   # Assign meth percentage as given percent
   meth.prop.simple <- 0.20 
   num.meth <- out$demog$num.meth <- round(num * meth.prop.simple)
+
+  # Alternative approach 
+  meth.prop.byage.list <- c(0.20,0.25,0.20,0.095,0.005)
 
   ## Age-sex-specific mortality rates (B, H, W)
   #  in 1-year age decrements starting with age 1
@@ -278,7 +282,7 @@ build_netstats <- function(epistats, netparams,
   if (length(attr_age.grp) == 5 & exists("meth.prop.byage")){
     # Assignment by age: only works with 5 age groups
       for (r in 1:5){
-        out$attr$meth[out$attr$age.grp==r] <- rbinom(length(which(out$attr$age.grp==r)),1,meth.prop.byage[r])
+        out$attr$meth[out$attr$age.grp==r] <- rbinom(length(which(out$attr$age.grp==r)),1,meth.prop.byage.list[r])
       } 
     } else {
           # Simple random assignment if we don't know meth prevalence by age
