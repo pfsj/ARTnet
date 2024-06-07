@@ -387,7 +387,7 @@ build_netparams <- function(epistats,
   # nodefactor("meth") 
 
   if (is.null(geog.lvl)) {
-      mod <- glm(deg.main ~ as.factor(meth),
+      mod <- glm(deg.main ~ meth,
                  data = d, family = poisson())
 
       dat <- data.frame(meth =  0:1)
@@ -763,7 +763,7 @@ build_netparams <- function(epistats,
   # nodefactor("meth")
 
   if (is.null(geog.lvl)) {
-      mod <- glm(deg.casl ~ as.factor(meth),
+      mod <- glm(deg.casl ~ meth,
                  data = d, family = poisson())
 
       dat <- data.frame(meth =  0:1)
@@ -1127,7 +1127,7 @@ build_netparams <- function(epistats,
   # nodefactor("meth") 
 
   if (is.null(geog.lvl)) {
-      mod <- glm(count.oo.part ~ as.factor(meth),
+      mod <- glm(count.oo.part ~ meth,
                  data = d, family = poisson())
 
       dat <- data.frame(meth =  0:1)
