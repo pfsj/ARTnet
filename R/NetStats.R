@@ -82,7 +82,8 @@ build_netstats <- function(epistats, netparams,
                            edges.avg = FALSE,
                            race.prop = NULL,
                            young.prop = NULL,
-                           browser = FALSE) {
+                           browser = FALSE,
+                           meth.by.age = FALSE) {
 
   if (browser == TRUE) {
     browser()
@@ -135,11 +136,22 @@ build_netstats <- function(epistats, netparams,
 
   # Population size by meth 
   # Assign meth percentage as proportion of ARTnet
-  # meth.prop <- unname(prop.table(table(meth))) 
-  # num.meth <- out$demog$num.meth <- round(num * meth.prop[2])
-  # Assign meth percentage as given percent
-  meth.prop.simple <- 0.20 
-  num.meth <- out$demog$num.meth <- round(num * meth.prop.simple)
+  if (!meth.by.age) {
+    meth.prop <- unname(prop.table(table(meth))) 
+    num.meth <- out$demog$num.meth <- round(num * meth.prop[2])
+
+    # Alternate approach
+    # Assign meth percentage as given percent # N
+    # meth.prop.simple <- 0.20 
+    # num.meth <- out$demog$num.meth <- round(num * meth.prop.simple)
+
+  } else if (meth.by.age) {
+
+    # # Probability by age drawn from meth_prev1 - 5 epi tracker 
+    # these values will depend on meth.init / meth.halt calibration
+    meth.prop.byage <- c(0.20,0.23,0.23,0.09,0.0195)
+
+  }
 
   ## Age-sex-specific mortality rates (B, H, W)
   #  in 1-year age decrements starting with age 1
@@ -275,8 +287,16 @@ build_netstats <- function(epistats, netparams,
   out$attr$race <- attr_race
 
   # meth attribute 
-  attr_meth <- apportion_lr(num, 0:1, c((num - num.meth)/num, num.meth / num), shuffled = TRUE)
-  out$attr$meth <- attr_meth
+  if (length(attr_age.grp) == 5 & exists("meth.prop.byage")){
+    # Assignment by age: only works with 5 age groups
+    for (r in 1:5){
+      out$attr$meth[out$attr$age.grp==r] <- rbinom(length(which(out$attr$age.grp==r)),1,meth.prop.byage[r])
+    } else {
+        # Simple random assignment if we don't know meth prevalence by age
+        attr_meth <- apportion_lr(num, 0:1, c((num - num.meth)/num, num.meth / num), shuffled = TRUE)
+        out$attr$meth <- attr_meth
+    }
+  }
 
   # deg.casl attribute
   attr_deg.casl <- apportion_lr(num, 0:3, netparams$main$deg.casl.dist, shuffled = TRUE)
