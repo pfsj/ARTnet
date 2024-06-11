@@ -139,11 +139,11 @@ build_netstats <- function(epistats, netparams,
   # meth.prop <- unname(prop.table(table(meth))) 
   # num.meth <- out$demog$num.meth <- round(num * meth.prop[2])
   # Assign meth percentage as given percent
-  meth.prop.simple <- 0.20 
+  meth.prop.simple <- 0.16
   num.meth <- out$demog$num.meth <- round(num * meth.prop.simple)
 
   # Alternative approach 
-  meth.prop.byage.list <- c(0.20,0.25,0.20,0.095,0.005)
+  # meth.prop.byage.list <- c(0.20,0.25,0.20,0.095,0.005)
 
   ## Age-sex-specific mortality rates (B, H, W)
   #  in 1-year age decrements starting with age 1
