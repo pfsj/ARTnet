@@ -279,7 +279,7 @@ build_netstats <- function(epistats, netparams,
   out$attr$race <- attr_race
 
   # meth attribute 
-  if (length(attr_age.grp) == 5 & exists("meth.prop.byage")){
+  if (length(attr_age.grp) == 5 & meth.prop.byage){
     # Assignment by age: only works with 5 age groups
       for (r in 1:5){
         out$attr$meth[out$attr$age.grp==r] <- rbinom(length(which(out$attr$age.grp==r)),1,meth.prop.byage.list[r])
