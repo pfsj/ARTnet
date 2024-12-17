@@ -98,8 +98,10 @@ build_netparams <- function(epistats,
 
   ## Recode substances ##
   d$meth <- ifelse(is.nan(d$NIUSEG), 0, d$NIUSEG)
-  ## Assign meth to long dataset ##
-  l <- l %>% left_join(d[,c("AMIS_ID","meth")], by = "AMIS_ID")
+  d$alc <- ifelse(is.nan(d$AUDITC_6DRINKS), 0, d$AUDITC_6DRINKS)
+  d$alc[d$alc>=1 & !is.na(d$alc)] <- 1
+  ## Assign meth and alc to long dataset ##
+  l <- l %>% left_join(d[,c("AMIS_ID","meth","alc")], by = "AMIS_ID")
 
   ## Degree calculations ##
 
@@ -432,6 +434,25 @@ build_netparams <- function(epistats,
   out$main$nm.meth <- c(mean(lmain$same.meth[lmain$meth == 0]),
                       mean(lmain$same.meth[lmain$meth == 1]))
 
+  # nodefactor("alc") 
+
+  if (is.null(geog.lvl)) {
+      mod <- glm(deg.main ~ alc,
+                 data = d[!is.na(d$alc),], family = poisson())
+
+      dat <- data.frame(alc =  0:1)
+      pred <- predict(mod, newdata = dat, type = "response")
+
+      out$main$nf.alc <- as.numeric(pred)
+  } else {
+      mod <- glm(deg.main ~ geogYN + alc,
+                 data =  d[!is.na(d$alc),], family = poisson())
+
+      dat <- data.frame(geogYN = 1, alc = 0:1)
+      pred <- predict(mod, newdata = dat, type = "response")
+
+      out$main$nf.alc <- as.numeric(pred)
+  }
   ## nodefactor("deg.casl") ----
 
   if (is.null(geog.lvl)) {

@@ -27,7 +27,7 @@
 #'        corresponding to a weekly time unit. Allowed inputs range from 1 for a daily time unit to
 #'        30 for a monthly time unit.
 #' @param browser If `TRUE`, run `build_epistats` in interactive browser mode.
-#' @param substance A character vector indicating the substance use indicators that should be included in regression models. Acceptable values include \code{"marijuana"}, \code{"cocaine"}, \code{"poppers"}, \code{"ecstasy"}, \code{"painkillers"}, \code{"downers"}, \code{"meth"}, \code{"hallucinogens"}, \code{"ketamine"}, \code{"ghb"}, \code{"crack"}, \code{"heroin_ninj"}, and \code{"other_drug"}.
+#' @param substance A character vector indicating the substance use indicators that should be included in regression models. Acceptable values include \code{"marijuana"}, \code{"cocaine"}, \code{"poppers"}, \code{"ecstasy"}, \code{"painkillers"}, \code{"downers"}, \code{"meth"}, \code{"hallucinogens"}, \code{"ketamine"}, \code{"ghb"}, \code{"crack"}, \code{"heroin_ninj"}, and \code{"other_drug"}, \code{"alc"}.
 #'
 #' @details
 #' The `build_epistats` function provides a way to input of geographic, age, and racial parameters
@@ -133,7 +133,7 @@ build_epistats <- function(geog.lvl = NULL,
 
   # Ensuring substance use is in the model
 
-  # Substance Use Variables (binard, recoding `NaN`s as `0`s)
+  # Substance Use Variables (binary, recoding `NaN`s as `0`s)
   d$marijuana <- ifelse(is.nan(d$NIUSEA), 0, d$NIUSEA)
   d$cocaine <- ifelse(is.nan(d$NIUSEB), 0, d$NIUSEB)
   d$poppers <- ifelse(is.nan(d$NIUSEC), 0, d$NIUSEC)
@@ -147,6 +147,10 @@ build_epistats <- function(geog.lvl = NULL,
   d$crack <- ifelse(is.nan(d$NIUSEK), 0, d$NIUSEK)
   d$heroin_ninj <- ifelse(is.nan(d$NIUSEL), 0, d$NIUSEL)
   d$other_drug <- ifelse(is.nan(d$NIUSEN), 0, d$NIUSEN)
+
+  # Heavy episodic drinking variable (binary, recoding `NaN`s as `0`s, NA for didn't see question)
+  d$alc <- ifelse(is.nan(d$AUDITC_6DRINKS), 0, d$AUDITC_6DRINKS)
+  d$alc[d$alc>=1 & !is.na(d$alc)] <- 1
 
   if (!is.null(substance)) {
   # Get `AMIS_ID` and `meth` for merging
@@ -751,6 +755,7 @@ build_epistats <- function(geog.lvl = NULL,
   out$init.hiv.prev <- init.hiv.prev
   out$time.unit <- time.unit
   out$meth.d <- d$meth
+  out$alc.d <- d$alc
   return(out)
 }
 
