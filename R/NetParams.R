@@ -453,6 +453,7 @@ build_netparams <- function(epistats,
 
       out$main$nf.alc <- as.numeric(pred)
   }
+  
   ## nodefactor("deg.casl") ----
 
   if (is.null(geog.lvl)) {
@@ -779,6 +780,26 @@ build_netparams <- function(epistats,
 
       out$casl$nf.race <- as.numeric(pred)
     }
+  }
+
+  # nodefactor("alc") 
+
+  if (is.null(geog.lvl)) {
+      mod <- glm(deg.casl ~ alc,
+                 data = d[!is.na(d$alc),], family = poisson())
+
+      dat <- data.frame(alc =  0:1)
+      pred <- predict(mod, newdata = dat, type = "response")
+
+      out$casl$nf.alc <- as.numeric(pred)
+  } else {
+      mod <- glm(deg.casl ~ geogYN + alc,
+                 data =  d[!is.na(d$alc),], family = poisson())
+
+      dat <- data.frame(geogYN = 1, alc = 0:1)
+      pred <- predict(mod, newdata = dat, type = "response")
+
+      out$casl$nf.alc <- as.numeric(pred)
   }
 
   # nodefactor("meth")
@@ -1143,6 +1164,26 @@ build_netparams <- function(epistats,
 
       out$inst$nf.race <- as.numeric(pred)
     }
+  }
+
+  # nodefactor("alc") 
+
+  if (is.null(geog.lvl)) {
+      mod <- glm(deg.inst ~ alc,
+                 data = d[!is.na(d$alc),], family = poisson())
+
+      dat <- data.frame(alc =  0:1)
+      pred <- predict(mod, newdata = dat, type = "response")
+
+      out$inst$nf.alc <- as.numeric(pred)
+  } else {
+      mod <- glm(deg.inst ~ geogYN + alc,
+                 data =  d[!is.na(d$alc),], family = poisson())
+
+      dat <- data.frame(geogYN = 1, alc = 0:1)
+      pred <- predict(mod, newdata = dat, type = "response")
+
+      out$inst$nf.alc <- as.numeric(pred)
   }
 
   # nodefactor("meth") 
