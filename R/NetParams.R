@@ -1169,7 +1169,7 @@ build_netparams <- function(epistats,
   # nodefactor("alc") 
 
   if (is.null(geog.lvl)) {
-      mod <- glm(deg.inst ~ alc,
+      mod <- glm(count.oo.part ~ alc,
                  data = d[!is.na(d$alc),], family = poisson())
 
       dat <- data.frame(alc =  0:1)
@@ -1177,7 +1177,7 @@ build_netparams <- function(epistats,
 
       out$inst$nf.alc <- as.numeric(pred)
   } else {
-      mod <- glm(deg.inst ~ geogYN + alc,
+      mod <- glm(count.oo.part ~ geogYN + alc,
                  data =  d[!is.na(d$alc),], family = poisson())
 
       dat <- data.frame(geogYN = 1, alc = 0:1)
