@@ -84,7 +84,7 @@ build_netstats <- function(epistats, netparams,
                            young.prop = NULL,
                            browser = FALSE,
                            meth.prop.byage = FALSE,
-                           alc.prop.byage = FALSE) {
+                           HED.prop.byage = FALSE) {
 
   if (browser == TRUE) {
     browser()
@@ -102,7 +102,7 @@ build_netstats <- function(epistats, netparams,
   age.sexual.cessation <- epistats$age.sexual.cessation
 
   meth <- epistats$meth.d
-  alc <- epistats$alc.d
+  HED <- epistats$HED.d
 
   time.unit <- epistats$time.unit
 
@@ -144,12 +144,12 @@ build_netstats <- function(epistats, netparams,
   meth.prop.simple <- 0.16
   num.meth <- out$demog$num.meth <- round(num * meth.prop.simple)
 
-  alc.prop.simple <- 0.40
-  num.alc <- out$demog$num.alc <- round(num * alc.prop.simple)
+  HED.prop.simple <- 0.40
+  num.HED <- out$demog$num.HED <- round(num * HED.prop.simple)
 
   # Alternative approach 
   # meth.prop.byage.list <- c(0.20,0.25,0.20,0.095,0.005)
-  # alc.prop.byage.list <- c(@@@,@@@,@@@,@@@,@@@)
+  # HED.prop.byage.list <- c(@@@,@@@,@@@,@@@,@@@)
 
   ## Age-sex-specific mortality rates (B, H, W)
   #  in 1-year age decrements starting with age 1
@@ -284,16 +284,16 @@ build_netstats <- function(epistats, netparams,
   attr_race <- apportion_lr(num, 1:3, c(num.B / num, num.H / num, num.W / num), shuffled = TRUE)
   out$attr$race <- attr_race
 
-  # alc attribute 
-  if (length(attr_age.grp) == 5 & alc.prop.byage){
+  # HED attribute 
+  if (length(attr_age.grp) == 5 & HED.prop.byage){
     # Assignment by age: only works with 5 age groups
       for (r in 1:5){
-        out$attr$alc[out$attr$age.grp==r] <- rbinom(length(which(out$attr$age.grp==r)),1,alc.prop.byage.list[r])
+        out$attr$HED[out$attr$age.grp==r] <- rbinom(length(which(out$attr$age.grp==r)),1,HED.prop.byage.list[r])
       } 
     } else {
-          # Simple random assignment if we don't know alc prevalence by age
-          attr_alc <- apportion_lr(num, 0:1, c((num - num.alc)/num, num.alc / num), shuffled = TRUE)
-          out$attr$alc <- attr_alc
+          # Simple random assignment if we don't know HED prevalence by age
+          attr_HED <- apportion_lr(num, 0:1, c((num - num.HED)/num, num.HED / num), shuffled = TRUE)
+          out$attr$HED <- attr_HED
     }
 
   # meth attribute 
@@ -406,9 +406,9 @@ build_netstats <- function(epistats, netparams,
     out$main$edges <- (netparams$main$md.main * num) / 2
   }
 
-  # nodefactor("alc") ---
-  nodefactor_alc <- table(out$attr$alc) * netparams$main$nf.alc
-  out$main$nodefactor_alc <- unname(nodefactor_alc)
+  # nodefactor("HED") ---
+  nodefactor_HED <- table(out$attr$HED) * netparams$main$nf.HED
+  out$main$nodefactor_HED <- unname(nodefactor_HED)
 
   # nodefactor("meth") ---
   nodefactor_meth <- table(out$attr$meth) * netparams$main$nf.meth
@@ -488,9 +488,9 @@ build_netstats <- function(epistats, netparams,
     out$casl$edges <- (netparams$casl$md.casl * num) / 2
   }
 
-  # nodefactor("alc") ---
-  nodefactor_alc <- table(out$attr$alc) * netparams$casl$nf.alc
-  out$casl$nodefactor_alc <- unname(nodefactor_alc)
+  # nodefactor("HED") ---
+  nodefactor_HED <- table(out$attr$HED) * netparams$casl$nf.HED
+  out$casl$nodefactor_HED <- unname(nodefactor_HED)
 
   # nodefactor("meth") ---
   nodefactor_meth <- table(out$attr$meth) * netparams$casl$nf.meth
@@ -569,9 +569,9 @@ build_netstats <- function(epistats, netparams,
     out$inst$edges <- (netparams$inst$md.inst * num) / 2
   }
 
-  # nodefactor("alc") ---
-  nodefactor_alc <- table(out$attr$alc) * netparams$inst$nf.alc
-  out$inst$nodefactor_alc <- unname(nodefactor_alc)
+  # nodefactor("HED") ---
+  nodefactor_HED <- table(out$attr$HED) * netparams$inst$nf.HED
+  out$inst$nodefactor_HED <- unname(nodefactor_HED)
 
   # nodefactor("meth") ---
   nodefactor_meth <- table(out$attr$meth) * netparams$inst$nf.meth

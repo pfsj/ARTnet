@@ -98,10 +98,10 @@ build_netparams <- function(epistats,
 
   ## Recode substances ##
   d$meth <- ifelse(is.nan(d$NIUSEG), 0, d$NIUSEG)
-  d$alc <- ifelse(is.nan(d$AUDITC_6DRINKS), 0, d$AUDITC_6DRINKS)
-  d$alc[d$alc>=1 & !is.na(d$alc)] <- 1
-  ## Assign meth and alc to long dataset ##
-  l <- l %>% left_join(d[,c("AMIS_ID","meth","alc")], by = "AMIS_ID")
+  d$HED <- ifelse(is.nan(d$AUDITC_6DRINKS), 0, d$AUDITC_6DRINKS)
+  d$HED[d$HED>=1 & !is.na(d$HED)] <- 1
+  ## Assign meth and HED to long dataset ##
+  l <- l %>% left_join(d[,c("AMIS_ID","meth","HED")], by = "AMIS_ID")
 
   ## Degree calculations ##
 
@@ -434,24 +434,24 @@ build_netparams <- function(epistats,
   out$main$nm.meth <- c(mean(lmain$same.meth[lmain$meth == 0]),
                       mean(lmain$same.meth[lmain$meth == 1]))
 
-  # nodefactor("alc") 
+  # nodefactor("HED") 
 
   if (is.null(geog.lvl)) {
-      mod <- glm(deg.main ~ alc,
-                 data = d[!is.na(d$alc),], family = poisson())
+      mod <- glm(deg.main ~ HED,
+                 data = d[!is.na(d$HED),], family = poisson())
 
-      dat <- data.frame(alc =  0:1)
+      dat <- data.frame(HED =  0:1)
       pred <- predict(mod, newdata = dat, type = "response")
 
-      out$main$nf.alc <- as.numeric(pred)
+      out$main$nf.HED <- as.numeric(pred)
   } else {
-      mod <- glm(deg.main ~ geogYN + alc,
-                 data =  d[!is.na(d$alc),], family = poisson())
+      mod <- glm(deg.main ~ geogYN + HED,
+                 data =  d[!is.na(d$HED),], family = poisson())
 
-      dat <- data.frame(geogYN = 1, alc = 0:1)
+      dat <- data.frame(geogYN = 1, HED = 0:1)
       pred <- predict(mod, newdata = dat, type = "response")
 
-      out$main$nf.alc <- as.numeric(pred)
+      out$main$nf.HED <- as.numeric(pred)
   }
   
   ## nodefactor("deg.casl") ----
@@ -782,24 +782,24 @@ build_netparams <- function(epistats,
     }
   }
 
-  # nodefactor("alc") 
+  # nodefactor("HED") 
 
   if (is.null(geog.lvl)) {
-      mod <- glm(deg.casl ~ alc,
-                 data = d[!is.na(d$alc),], family = poisson())
+      mod <- glm(deg.casl ~ HED,
+                 data = d[!is.na(d$HED),], family = poisson())
 
-      dat <- data.frame(alc =  0:1)
+      dat <- data.frame(HED =  0:1)
       pred <- predict(mod, newdata = dat, type = "response")
 
-      out$casl$nf.alc <- as.numeric(pred)
+      out$casl$nf.HED <- as.numeric(pred)
   } else {
-      mod <- glm(deg.casl ~ geogYN + alc,
-                 data =  d[!is.na(d$alc),], family = poisson())
+      mod <- glm(deg.casl ~ geogYN + HED,
+                 data =  d[!is.na(d$HED),], family = poisson())
 
-      dat <- data.frame(geogYN = 1, alc = 0:1)
+      dat <- data.frame(geogYN = 1, HED = 0:1)
       pred <- predict(mod, newdata = dat, type = "response")
 
-      out$casl$nf.alc <- as.numeric(pred)
+      out$casl$nf.HED <- as.numeric(pred)
   }
 
   # nodefactor("meth")
@@ -1166,24 +1166,24 @@ build_netparams <- function(epistats,
     }
   }
 
-  # nodefactor("alc") 
+  # nodefactor("HED") 
 
   if (is.null(geog.lvl)) {
-      mod <- glm(count.oo.part ~ alc,
-                 data = d[!is.na(d$alc),], family = poisson())
+      mod <- glm(count.oo.part ~ HED,
+                 data = d[!is.na(d$HED),], family = poisson())
 
-      dat <- data.frame(alc =  0:1)
+      dat <- data.frame(HED =  0:1)
       pred <- predict(mod, newdata = dat, type = "response")
 
-      out$inst$nf.alc <- as.numeric(pred)
+      out$inst$nf.HED <- as.numeric(pred)
   } else {
-      mod <- glm(count.oo.part ~ geogYN + alc,
-                 data =  d[!is.na(d$alc),], family = poisson())
+      mod <- glm(count.oo.part ~ geogYN + HED,
+                 data =  d[!is.na(d$HED),], family = poisson())
 
-      dat <- data.frame(geogYN = 1, alc = 0:1)
+      dat <- data.frame(geogYN = 1, HED = 0:1)
       pred <- predict(mod, newdata = dat, type = "response")
 
-      out$inst$nf.alc <- as.numeric(pred)
+      out$inst$nf.HED <- as.numeric(pred)
   }
 
   # nodefactor("meth") 
