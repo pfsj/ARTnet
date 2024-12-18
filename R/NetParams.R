@@ -1173,7 +1173,7 @@ build_netparams <- function(epistats,
                  data = d[!is.na(d$HED),], family = poisson())
 
       dat <- data.frame(HED =  0:1)
-      pred <- predict(mod, newdata = dat, type = "response")
+      pred <- predict(mod, newdata = dat, type = "response") / (364 / time.unit)
 
       out$inst$nf.HED <- as.numeric(pred)
   } else {
@@ -1181,8 +1181,7 @@ build_netparams <- function(epistats,
                  data =  d[!is.na(d$HED),], family = poisson())
 
       dat <- data.frame(geogYN = 1, HED = 0:1)
-      pred <- predict(mod, newdata = dat, type = "response")
-
+      pred <- predict(mod, newdata = dat, type = "response") / (364 / time.unit)
       out$inst$nf.HED <- as.numeric(pred)
   }
 
