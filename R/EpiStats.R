@@ -27,7 +27,7 @@
 #'        corresponding to a weekly time unit. Allowed inputs range from 1 for a daily time unit to
 #'        30 for a monthly time unit.
 #' @param browser If `TRUE`, run `build_epistats` in interactive browser mode.
-#' @param substance.act A character vector indicating the substance use indicators that should be included in regression models for acts. Acceptable values include \code{"marijuana"}, \code{"cocaine"}, \code{"poppers"}, \code{"ecstasy"}, \code{"painkillers"}, \code{"downers"}, \code{"meth"}, \code{"hallucinogens"}, \code{"ketamine"}, \code{"ghb"}, \code{"crack"}, \code{"heroin_ninj"}, and \code{"other_drug"}, \code{"HED"}.
+#' @param substance.acts A character vector indicating the substance use indicators that should be included in regression models for acts. Acceptable values include \code{"marijuana"}, \code{"cocaine"}, \code{"poppers"}, \code{"ecstasy"}, \code{"painkillers"}, \code{"downers"}, \code{"meth"}, \code{"hallucinogens"}, \code{"ketamine"}, \code{"ghb"}, \code{"crack"}, \code{"heroin_ninj"}, and \code{"other_drug"}, \code{"HED"}.
 #' @param substance.cond A character vector indicating the substance use indicators that should be included in regression models for condom use. Acceptable values include \code{"marijuana"}, \code{"cocaine"}, \code{"poppers"}, \code{"ecstasy"}, \code{"painkillers"}, \code{"downers"}, \code{"meth"}, \code{"hallucinogens"}, \code{"ketamine"}, \code{"ghb"}, \code{"crack"}, \code{"heroin_ninj"}, and \code{"other_drug"}, \code{"HED"}.
 
 #'
