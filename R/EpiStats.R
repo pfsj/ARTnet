@@ -158,10 +158,10 @@ build_epistats <- function(geog.lvl = NULL,
   # Make a combined list for all substances to include 
   substance <- unique(c(substance.acts,substance.cond))
 
-  if (!is.null(substance)) {
+  if (!is.null(substance.cond) | !is.null(substance.acts)) {
   # Get `AMIS_ID` and `meth` for merging
   substance_merge <- d %>%
-    dplyr::select(AMIS_ID, dplyr::all_of(substance))
+    dplyr::select(AMIS_ID, dplyr::all_of(c(substance.acts,substance.cond)))
 
   l <- l %>% dplyr::left_join(substance_merge, by = "AMIS_ID")
 
@@ -362,11 +362,6 @@ build_epistats <- function(geog.lvl = NULL,
   l$anal.acts.time <- l$anal.acts.week * time.unit / 7
   l$anal.acts.time.cp <- l$anal.acts.week.cp * time.unit / 7
 
-
-  # Act Rates ---------------------------------------------------------------
-
-  # acts/per week/per partnership for main and casual partnerships
-
   # Pull Data
   if (race == TRUE) {
     if (is.null(geog.lvl)) {
@@ -374,7 +369,7 @@ build_epistats <- function(geog.lvl = NULL,
                    race.combo, RAI, IAI, hiv.concord.pos, prep,
                    acts = anal.acts.time, cp.acts = anal.acts.time.cp,
                    # SELECT SUBSTANCE USE INDICATORS
-                   all_of(substance.acts)) %>%
+                   all_of(substance)) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
@@ -383,7 +378,7 @@ build_epistats <- function(geog.lvl = NULL,
                    race.combo, RAI, IAI, hiv.concord.pos, prep,
                    acts = anal.acts.time, cp.acts = anal.acts.time.cp,
                    # SELECT SUBSTANCE USE INDICATORS
-                   all_of(substance.acts)) %>%
+                   all_of(substance)) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
@@ -394,7 +389,7 @@ build_epistats <- function(geog.lvl = NULL,
                    RAI, IAI, hiv.concord.pos, prep,
                    acts = anal.acts.time, cp.acts = anal.acts.time.cp,
                    # SELECT SUBSTANCE USE INDICATORS
-                   all_of(substance.acts)) %>%
+                   all_of(substance)) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
@@ -403,12 +398,16 @@ build_epistats <- function(geog.lvl = NULL,
                    RAI, IAI, hiv.concord.pos, prep,
                    acts = anal.acts.time, cp.acts = anal.acts.time.cp,
                    # SELECT SUBSTANCE USE INDICATORS
-                   all_of(substance.acts)) %>%
+                   all_of(substance)) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
     }
   }
+
+  # Act Rates ---------------------------------------------------------------
+
+  # acts/per week/per partnership for main and casual partnerships
 
   # Poisson Model
   if (race == TRUE) {
