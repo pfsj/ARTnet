@@ -27,7 +27,9 @@
 #'        corresponding to a weekly time unit. Allowed inputs range from 1 for a daily time unit to
 #'        30 for a monthly time unit.
 #' @param browser If `TRUE`, run `build_epistats` in interactive browser mode.
-#' @param substance A character vector indicating the substance use indicators that should be included in regression models. Acceptable values include \code{"marijuana"}, \code{"cocaine"}, \code{"poppers"}, \code{"ecstasy"}, \code{"painkillers"}, \code{"downers"}, \code{"meth"}, \code{"hallucinogens"}, \code{"ketamine"}, \code{"ghb"}, \code{"crack"}, \code{"heroin_ninj"}, and \code{"other_drug"}, \code{"HED"}.
+#' @param substance.act A character vector indicating the substance use indicators that should be included in regression models for acts. Acceptable values include \code{"marijuana"}, \code{"cocaine"}, \code{"poppers"}, \code{"ecstasy"}, \code{"painkillers"}, \code{"downers"}, \code{"meth"}, \code{"hallucinogens"}, \code{"ketamine"}, \code{"ghb"}, \code{"crack"}, \code{"heroin_ninj"}, and \code{"other_drug"}, \code{"HED"}.
+#' @param substance.cond A character vector indicating the substance use indicators that should be included in regression models for condom use. Acceptable values include \code{"marijuana"}, \code{"cocaine"}, \code{"poppers"}, \code{"ecstasy"}, \code{"painkillers"}, \code{"downers"}, \code{"meth"}, \code{"hallucinogens"}, \code{"ketamine"}, \code{"ghb"}, \code{"crack"}, \code{"heroin_ninj"}, and \code{"other_drug"}, \code{"HED"}.
+
 #'
 #' @details
 #' The `build_epistats` function provides a way to input of geographic, age, and racial parameters
@@ -115,7 +117,8 @@ build_epistats <- function(geog.lvl = NULL,
                            init.hiv.prev = NULL,
                            time.unit = 7,
                            browser = FALSE,
-                           substance = NULL) {
+                           substance.acts = NULL,
+                           substance.cond = NULL) {
 
 
   # Fix global binding check errors
@@ -151,6 +154,9 @@ build_epistats <- function(geog.lvl = NULL,
   # Heavy episodic drinking variable (binary, recoding `NaN`s as `0`s, NA for didn't see question)
   d$HED <- ifelse(is.nan(d$AUDITC_6DRINKS), 0, d$AUDITC_6DRINKS)
   d$HED[d$HED>=1 & !is.na(d$HED)] <- 1
+
+  # Make a combined list for all substances to include 
+  substance <- unique(c(substance.acts,substance.cond))
 
   if (!is.null(substance)) {
   # Get `AMIS_ID` and `meth` for merging
@@ -368,7 +374,7 @@ build_epistats <- function(geog.lvl = NULL,
                    race.combo, RAI, IAI, hiv.concord.pos, prep,
                    acts = anal.acts.time, cp.acts = anal.acts.time.cp,
                    # SELECT SUBSTANCE USE INDICATORS
-                   all_of(substance)) %>%
+                   all_of(substance.acts)) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
@@ -377,7 +383,7 @@ build_epistats <- function(geog.lvl = NULL,
                    race.combo, RAI, IAI, hiv.concord.pos, prep,
                    acts = anal.acts.time, cp.acts = anal.acts.time.cp,
                    # SELECT SUBSTANCE USE INDICATORS
-                   all_of(substance)) %>%
+                   all_of(substance.acts)) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
@@ -388,7 +394,7 @@ build_epistats <- function(geog.lvl = NULL,
                    RAI, IAI, hiv.concord.pos, prep,
                    acts = anal.acts.time, cp.acts = anal.acts.time.cp,
                    # SELECT SUBSTANCE USE INDICATORS
-                   all_of(substance)) %>%
+                   all_of(substance.acts)) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
@@ -397,7 +403,7 @@ build_epistats <- function(geog.lvl = NULL,
                    RAI, IAI, hiv.concord.pos, prep,
                    acts = anal.acts.time, cp.acts = anal.acts.time.cp,
                    # SELECT SUBSTANCE USE INDICATORS
-                   all_of(substance)) %>%
+                   all_of(substance.acts)) %>%
         filter(ptype %in% 1:2) %>%
         filter(RAI == 1 | IAI == 1)
       la <- select(la, -c(RAI, IAI))
@@ -412,8 +418,8 @@ build_epistats <- function(geog.lvl = NULL,
                       "as.factor(ptype)", "duration.time * as.factor(ptype)", "comb.age",
                       "I(comb.age^2)", "hiv.concord.pos")
 
-      if (!is.null(substance)) {
-        model_vars <- c(model_vars, substance)
+      if (!is.null(substance.acts)) {
+        model_vars <- c(model_vars, substance.acts)
       }
 
       model_formula <- as.formula(paste("floor(acts * 364 / time.unit)",
@@ -429,8 +435,8 @@ build_epistats <- function(geog.lvl = NULL,
                       "as.factor(ptype)", "duration.time * as.factor(ptype)", "comb.age",
                       "I(comb.age^2)", "hiv.concord.pos", "geogYN")
 
-      if (!is.null(substance)) {
-        model_vars <- c(model_vars, substance)
+      if (!is.null(substance.acts)) {
+        model_vars <- c(model_vars, substance.acts)
       }
 
       model_formula <- as.formula(paste("floor(acts * 364 / time.unit)",
@@ -448,8 +454,8 @@ build_epistats <- function(geog.lvl = NULL,
                       "as.factor(ptype)", "duration.time * as.factor(ptype)", "comb.age",
                       "I(comb.age^2)", "hiv.concord.pos")
 
-      if (!is.null(substance)) {
-        model_vars <- c(model_vars, substance)
+      if (!is.null(substance.acts)) {
+        model_vars <- c(model_vars, substance.acts)
       }
 
       model_formula <- as.formula(paste("floor(acts * 364 / time.unit)",
@@ -465,8 +471,8 @@ build_epistats <- function(geog.lvl = NULL,
                       "as.factor(ptype)", "duration.time * as.factor(ptype)", "comb.age",
                       "I(comb.age^2)", "hiv.concord.pos", "geogYN")
 
-      if (!is.null(substance)) {
-        model_vars <- c(model_vars, substance)
+      if (!is.null(substance.acts)) {
+        model_vars <- c(model_vars, substance.acts)
       }
 
       model_formula <- as.formula(paste("floor(acts * 364 / time.unit)",
@@ -492,8 +498,8 @@ build_epistats <- function(geog.lvl = NULL,
                       "as.factor(ptype)", "duration.time * as.factor(ptype)", "comb.age",
                       "I(comb.age^2)", "hiv.concord.pos", "prep")
 
-      if (!is.null(substance)) {
-        model_vars <- c(model_vars, substance)
+      if (!is.null(substance.cond)) {
+        model_vars <- c(model_vars, substance.cond)
       }
 
       model_formula <- as.formula(paste("any.cond",
@@ -511,8 +517,8 @@ build_epistats <- function(geog.lvl = NULL,
                       "I(comb.age^2)", "hiv.concord.pos", "prep", "geogYN")
 
 
-      if (!is.null(substance)) {
-        model_vars <- c(model_vars, substance)
+      if (!is.null(substance.cond)) {
+        model_vars <- c(model_vars, substance.cond)
       }
 
       model_formula <- as.formula(paste("any.cond",
@@ -531,8 +537,8 @@ build_epistats <- function(geog.lvl = NULL,
                       "as.factor(ptype)", "duration.time * as.factor(ptype)", "comb.age",
                       "I(comb.age^2)", "hiv.concord.pos", "prep")
 
-      if (!is.null(substance)) {
-        model_vars <- c(model_vars, substance)
+      if (!is.null(substance.cond)) {
+        model_vars <- c(model_vars, substance.cond)
       }
 
       model_formula <- as.formula(paste("any.cond",
@@ -551,8 +557,8 @@ build_epistats <- function(geog.lvl = NULL,
                       "I(comb.age^2)", "hiv.concord.pos", "prep", "geogYN")
 
 
-      if (!is.null(substance)) {
-        model_vars <- c(model_vars, substance)
+      if (!is.null(substance.cond)) {
+        model_vars <- c(model_vars, substance.cond)
       }
 
       model_formula <- as.formula(paste("any.cond",
@@ -573,7 +579,7 @@ build_epistats <- function(geog.lvl = NULL,
                    race.combo, hiv.concord.pos, prep,
                    RAI, IAI, RECUAI, INSUAI,
                    # SUBSTANCE USE INDICATORS
-                   all_of(substance)) %>%
+                   all_of(substance.cond)) %>%
         filter(ptype == 3) %>%
         filter(RAI == 1 | IAI == 1)
     } else {
@@ -581,7 +587,7 @@ build_epistats <- function(geog.lvl = NULL,
                    race.combo, hiv.concord.pos, prep,
                    RAI, IAI, RECUAI, INSUAI,
                    # SUBSTANCE USE INDICATORS
-                   all_of(substance)) %>%
+                   all_of(substance.cond)) %>%
         filter(ptype == 3) %>%
         filter(RAI == 1 | IAI == 1)
     }
@@ -591,7 +597,7 @@ build_epistats <- function(geog.lvl = NULL,
                    hiv.concord.pos, prep,
                    RAI, IAI, RECUAI, INSUAI,
                    # SUBSTANCE USE INDICATORS
-                   all_of(substance)) %>%
+                   all_of(substance.cond)) %>%
         filter(ptype == 3) %>%
         filter(RAI == 1 | IAI == 1)
     } else {
@@ -599,7 +605,7 @@ build_epistats <- function(geog.lvl = NULL,
                    hiv.concord.pos, prep,
                    RAI, IAI, RECUAI, INSUAI,
                    # SUBSTANCE USE INDICATORS
-                   all_of(substance)) %>%
+                   all_of(substance.cond)) %>%
         filter(ptype == 3) %>%
         filter(RAI == 1 | IAI == 1)
     }
@@ -625,8 +631,8 @@ build_epistats <- function(geog.lvl = NULL,
                         "comb.age", "I(comb.age^2)",
                         "hiv.concord.pos", "prep")
 
-      if (!is.null(substance)) {
-        model_vars <- c(model_vars, substance)
+      if (!is.null(substance.cond)) {
+        model_vars <- c(model_vars, substance.cond)
       }
 
       model_formula <- as.formula(paste("prob.cond",
@@ -642,8 +648,8 @@ build_epistats <- function(geog.lvl = NULL,
                       "comb.age", "I(comb.age^2)",
                       "hiv.concord.pos", "prep", "geogYN")
 
-      if (!is.null(substance)) {
-        model_vars <- c(model_vars, substance)
+      if (!is.null(substance.cond)) {
+        model_vars <- c(model_vars, substance.cond)
       }
 
       model_formula <- as.formula(paste("prob.cond",
@@ -661,8 +667,8 @@ build_epistats <- function(geog.lvl = NULL,
       model_vars <- c("comb.age", "I(comb.age^2)",
                       "hiv.concord.pos", "prep")
 
-      if (!is.null(substance)) {
-        model_vars <- c(model_vars, substance)
+      if (!is.null(substance.cond)) {
+        model_vars <- c(model_vars, substance.cond)
       }
 
       model_formula <- as.formula(paste("prob.cond",
@@ -679,8 +685,8 @@ build_epistats <- function(geog.lvl = NULL,
       model_vars <- c("comb.age", "I(comb.age^2)",
                       "hiv.concord.pos", "prep", "geogYN")
 
-      if (!is.null(substance)) {
-        model_vars <- c(model_vars, substance)
+      if (!is.null(substance.cond)) {
+        model_vars <- c(model_vars, substance.cond)
       }
 
       model_formula <- as.formula(paste("prob.cond",
