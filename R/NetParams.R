@@ -979,11 +979,6 @@ build_netparams <- function(epistats,
   out$inst <- list()
   linst <- l[l$ptype == 3, ]
 
-  # Assign homophily data for estimate for one-off partners
-  linst$same.meth <- NA
-  linst$same.meth[linst$meth == 1] <- rbinom(length(which(linst$meth == 1)),1, meth_use_percent)
-  linst$same.meth[linst$meth == 0] <- rbinom(length(which(linst$meth == 0)),1, no_meth_use_percent)
-
   ## edges ----
 
   head(d$count.oo.part, 25)
