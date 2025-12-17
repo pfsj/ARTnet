@@ -21,6 +21,7 @@
 #'        Default is NULL (meaning no re-weighting of the `age.pyramid` parameter is performed).
 #'        This parameter is only used if the age of sexual cessation is less than the upper age bound.
 #' @param browser If `TRUE`, run `build_netparams` in interactive browser mode.
+#' @param flat.asmr If `TRUE`, use a flat mortality rate for all race groups.
 #'
 #' @details
 #' This function takes output from [`build_epistats`] and [`build_netparams`] to build the relevant
@@ -84,7 +85,8 @@ build_netstats <- function(epistats, netparams,
                            young.prop = NULL,
                            browser = FALSE,
                            meth.prop.byage = FALSE,
-                           HED.prop.byage = FALSE) {
+                           HED.prop.byage = FALSE,
+                           flat.asmr = FALSE) {
 
   if (browser == TRUE) {
     browser()
@@ -194,7 +196,7 @@ build_netstats <- function(epistats, netparams,
               0.05235, 0.05724, 0.06251, 0.06934, 0.07589, 0.08669, 0.09582,
               0.16601)
 
-  if (race == TRUE) {
+  if (race == TRUE & flat.asmr==FALSE) {
     # transformed to rates by time unit
     trans.asmr.B <- 1 - (1 - asmr.B)^(1 / (364 / time.unit))
     trans.asmr.H <- 1 - (1 - asmr.H)^(1 / (364 / time.unit))

@@ -151,8 +151,8 @@ build_epistats <- function(geog.lvl = NULL,
   d$heroin_ninj <- ifelse(is.nan(d$NIUSEL), 0, d$NIUSEL)
   d$other_drug <- ifelse(is.nan(d$NIUSEN), 0, d$NIUSEN)
 
-  # Heavy episodic drinking variable (binary, recoding `NaN`s as `0`s, NA for didn't see question)
-  d$HED <- ifelse(is.nan(d$AUDITC_6DRINKS), 0, d$AUDITC_6DRINKS)
+  # Heavy episodic drinking variable (binary, recoding `NaN`s and NA as `0`s)
+  d$HED <- ifelse(is.nan(d$AUDITC_6DRINKS) | is.na(d$AUDITC_6DRINKS), 0, d$AUDITC_6DRINKS)
   d$HED[d$HED>=1 & !is.na(d$HED)] <- 1
 
   # Make a combined list for all substances to include 
