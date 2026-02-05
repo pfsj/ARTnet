@@ -21,6 +21,8 @@
 #'        Default is NULL (meaning no re-weighting of the `age.pyramid` parameter is performed).
 #'        This parameter is only used if the age of sexual cessation is less than the upper age bound.
 #' @param browser If `TRUE`, run `build_netparams` in interactive browser mode.
+#' @param meth.no.diff If `TRUE`, set meth nodefactor/nodematch values the same regardless of use.
+#'.       Dose not currently work for nodematch("meth", diff = FALSE).
 #' @param flat.asmr If `TRUE`, use a flat mortality rate for all race groups.
 #'
 #' @details
@@ -86,6 +88,7 @@ build_netstats <- function(epistats, netparams,
                            browser = FALSE,
                            meth.prop.byage = FALSE,
                            HED.prop.byage = FALSE,
+                           meth.no.diff = FALSE,
                            flat.asmr = FALSE) {
 
   if (browser == TRUE) {
@@ -212,7 +215,7 @@ build_netstats <- function(epistats, netparams,
     asmr.O <- props$Black * asmr.B + props$Hispanic * asmr.H +
       props$White.Other * asmr.W
 
-    trans.asmr <- 1 - (1 - asmr.O)^(1 / (364 / time.unit))
+    trans.asmr <- 1 - (1 - asmr.O)^(1 / (364 / time.unit))  
 
     vec.asmr <- c(trans.asmr, rep(tail(trans.asmr, n = 1), 15))
     asmr <- data.frame(age = 1:100, vec.asmr, vec.asmr, vec.asmr)
@@ -413,16 +416,31 @@ build_netstats <- function(epistats, netparams,
   out$main$nodefactor_HED <- unname(nodefactor_HED)
 
   # nodefactor("meth") ---
-  nodefactor_meth <- table(out$attr$meth) * netparams$main$nf.meth
-  out$main$nodefactor_meth <- unname(nodefactor_meth)
+  if (meth.no.diff == TRUE) {
+      nodefactor_meth <- table(out$attr$meth) * netparams$main$nf.meth[1]
+      out$main$nodefactor_meth <- unname(nodefactor_meth)
+  } else {
+      nodefactor_meth <- table(out$attr$meth) * netparams$main$nf.meth
+      out$main$nodefactor_meth <- unname(nodefactor_meth)
+  }
 
   # nodematch("meth") ---
-  nodematch_meth <- nodefactor_meth / 2 * netparams$main$nm.meth
-  out$main$nodematch_meth <- unname(nodematch_meth)
-
+  if (meth.no.diff == TRUE) {
+      nodematch_meth <- nodefactor_meth / 2 * netparams$main$nm.meth[1]
+      out$main$nodematch_meth <- unname(nodematch_meth)
+  } else {
+      nodematch_meth <- nodefactor_meth / 2 * netparams$main$nm.meth
+      out$main$nodematch_meth <- unname(nodematch_meth)
+  }
+  
   # nodematch("meth", diff = FALSE) ---
-  nodematch_meth_diffF <- out$main$edges * netparams$main$nm.meth_diffF
+  if (meth.no.diff == TRUE) {
+        nodematch_meth_diffF <- out$main$edges * netparams$main$nm.meth_diffF[1]
   out$main$nodematch_meth_diffF <- unname(nodematch_meth_diffF)
+  } else {
+      nodematch_meth_diffF <- out$main$edges * netparams$main$nm.meth_diffF
+      out$main$nodematch_meth_diffF <- unname(nodematch_meth_diffF)
+  }
 
   # nodefactor("age.grp") ---
   nodefactor_age.grp <- table(out$attr$age.grp) * netparams$main$nf.age.grp
@@ -495,16 +513,31 @@ build_netstats <- function(epistats, netparams,
   out$casl$nodefactor_HED <- unname(nodefactor_HED)
 
   # nodefactor("meth") ---
-  nodefactor_meth <- table(out$attr$meth) * netparams$casl$nf.meth
-  out$casl$nodefactor_meth <- unname(nodefactor_meth)
+  if (meth.no.diff == TRUE) {
+      nodefactor_meth <- table(out$attr$meth) * netparams$casl$nf.meth[1]
+      out$casl$nodefactor_meth <- unname(nodefactor_meth)
+  } else {
+      nodefactor_meth <- table(out$attr$meth) * netparams$casl$nf.meth
+      out$casl$nodefactor_meth <- unname(nodefactor_meth)
+  }
 
   # nodematch("meth") ---
-  nodematch_meth <- nodefactor_meth / 2 * netparams$casl$nm.meth
-  out$casl$nodematch_meth <- unname(nodematch_meth)
-
+  if (meth.no.diff == TRUE) {
+      nodematch_meth <- nodefactor_meth / 2 * netparams$casl$nm.meth[1]
+      out$casl$nodematch_meth <- unname(nodematch_meth)
+  } else {
+      nodematch_meth <- nodefactor_meth / 2 * netparams$casl$nm.meth
+      out$casl$nodematch_meth <- unname(nodematch_meth)
+  }
+  
   # nodematch("meth", diff = FALSE) ---
-  nodematch_meth_diffF <- out$casl$edges * netparams$casl$nm.meth_diffF
-  out$casl$nodematch_meth_diffF <- unname(nodematch_meth_diffF)
+  if (meth.no.diff == TRUE) {
+      nodematch_meth_diffF <- out$casl$edges * netparams$casl$nm.meth_diffF[1]
+      out$casl$nodematch_meth_diffF <- unname(nodematch_meth_diffF)
+  } else {
+      nodematch_meth_diffF <- out$casl$edges * netparams$casl$nm.meth_diffF
+      out$casl$nodematch_meth_diffF <- unname(nodematch_meth_diffF)
+  }
 
   # nodefactor("age.grp") ---
   nodefactor_age.grp <- table(out$attr$age.grp) * netparams$casl$nf.age.grp
@@ -576,16 +609,31 @@ build_netstats <- function(epistats, netparams,
   out$inst$nodefactor_HED <- unname(nodefactor_HED)
 
   # nodefactor("meth") ---
-  nodefactor_meth <- table(out$attr$meth) * netparams$inst$nf.meth
-  out$inst$nodefactor_meth <- unname(nodefactor_meth)
+  if (meth.no.diff == TRUE) {
+      nodefactor_meth <- table(out$attr$meth) * netparams$inst$nf.meth[1]
+      out$inst$nodefactor_meth <- unname(nodefactor_meth)
+  } else {
+      nodefactor_meth <- table(out$attr$meth) * netparams$inst$nf.meth
+      out$inst$nodefactor_meth <- unname(nodefactor_meth)
+  }
 
   # nodematch("meth") ---
-  nodematch_meth <- nodefactor_meth / 2 * netparams$inst$nm.meth
-  out$inst$nodematch_meth <- unname(nodematch_meth)
-
+  if (meth.no.diff == TRUE) {
+      nodematch_meth <- nodefactor_meth / 2 * netparams$inst$nm.meth[1]
+      out$inst$nodematch_meth <- unname(nodematch_meth)
+  } else {
+      nodematch_meth <- nodefactor_meth / 2 * netparams$inst$nm.meth
+      out$inst$nodematch_meth <- unname(nodematch_meth)
+  }
+  
   # nodematch("meth", diff = FALSE) ---
-  nodematch_meth_diffF <- out$inst$edges * netparams$inst$nm.meth_diffF
-  out$inst$nodematch_meth_diffF <- unname(nodematch_meth_diffF)
+  if (meth.no.diff == TRUE) {
+      nodematch_meth_diffF <- out$inst$edges * netparams$inst$nm.meth_diffF[1]
+      out$inst$nodematch_meth_diffF <- unname(nodematch_meth_diffF)
+  } else {
+      nodematch_meth_diffF <- out$inst$edges * netparams$inst$nm.meth_diffF
+      out$inst$nodematch_meth_diffF <- unname(nodematch_meth_diffF)
+  }
 
   # nodefactor("age.grp") ---
   nodefactor_age.grp <- table(out$attr$age.grp) * netparams$inst$nf.age.grp
