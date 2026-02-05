@@ -9,6 +9,7 @@
 #'        oldest and second oldest age groups.
 #' @param oo.nquants Number of quantiles to split the one-off partnership risk distribution (count
 #'        of one-off partners per unit time).
+#' @param no.meth.match If `TRUE`, assign NO homophily across groups.
 #' @param browser If `TRUE`, run `build_netparams` in interactive browser mode.
 #'
 #' @details
@@ -47,6 +48,7 @@
 build_netparams <- function(epistats,
                             smooth.main.dur = FALSE,
                             oo.nquants = 5,
+                            no.meth.match = FALSE,
                             browser = FALSE) {
 
   if (browser == TRUE) {
@@ -209,8 +211,16 @@ build_netparams <- function(epistats,
   # Homophily estimate pulled from supplement of Janulis et al. 2024 (RADAR DATA)
   # 20% meth user partners use meth, 90% of on-users partners don't use meth
   # Assign appropriate values here: # This should be stored eslewhere and read in.
-  meth_use_percent <- 0.20
-  no_meth_use_percent <- 0.90
+  # When no.meth.match = TRUE, then assign hard coded simple probability of meth use
+  # This is assigned as meth.prop.simple in NetStats.R (ARTnet@SubstanceUse package)
+
+  if (no.meth.match == TRUE){
+    meth_use_percent <- 0.16
+    no_meth_use_percent <- 0.84
+  } else {
+    meth_use_percent <- 0.20
+    no_meth_use_percent <- 0.90
+  }
   
   # 1. Main Model -----------------------------------------------------------
 
